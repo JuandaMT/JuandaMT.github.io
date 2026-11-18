@@ -15,9 +15,9 @@ const t = useTranslations(lang);
   href={localizePath(path, target)}
   hreflang={target}
   lang={target}
-  aria-label={t.a11y.switchLang}
+  aria-label={`${target.toUpperCase()} · ${t.a11y.switchLang}`}
   data-lang-switch
-  class="inline-flex h-9 items-center rounded-full px-3 font-mono text-xs tracking-wider text-muted uppercase transition-colors hover:bg-accent-soft hover:text-ink"
+  class="inline-flex h-9 items-center rounded-full px-3 font-mono text-xs tracking-wider text-muted transition-colors hover:bg-accent-soft hover:text-ink"
 >
-  {target}
+  {target.toUpperCase()}
 </a>

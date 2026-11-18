@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "test": "playwright test",
     "todos": "node scripts/todos.mjs",
-    "og": "node scripts/og.mjs"
+    "og": "node scripts/og.mjs",
+    "lhci": "lhci autorun"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.5",
@@ -29,6 +30,7 @@
     "@astrojs/check": "^0.9.12",
     "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.16.1",
     "@playwright/test": "^1.65.1",
     "eslint": "^10.15.0",
     "eslint-plugin-astro": "^3.2.1",
@@ -38,5 +40,6 @@
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.73.0"
-  }
+  },
+  "packageManager": "pnpm@9.15.0"
 }

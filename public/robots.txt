@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://juandamt.github.io/sitemap-index.xml

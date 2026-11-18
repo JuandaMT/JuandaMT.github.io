@@ -58,15 +58,15 @@ const external = [
       </div>
     )}
 
-    <dl class="mt-12 grid gap-8 border-y border-line py-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.6fr_1fr]">
+    <div class="mt-12 grid gap-8 border-y border-line py-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.6fr_1fr]">
       {data.problem && (
-        <div>
+        <dl>
           <dt class="font-mono text-xs text-muted">{t.problem}</dt>
           <dd class="mt-2 leading-relaxed">{data.problem}</dd>
-        </div>
+        </dl>
       )}
       {data.contribution.length > 0 && (
-        <div>
+        <dl>
           <dt class="font-mono text-xs text-muted">{t.contribution}</dt>
           <dd class="mt-2">
             <ul class="space-y-2 leading-relaxed">
@@ -77,9 +77,9 @@ const external = [
               ))}
             </ul>
           </dd>
-        </div>
+        </dl>
       )}
-      <div class="space-y-8">
+      <dl class="space-y-8">
         {data.stack.length > 0 && (
           <div>
             <dt class="font-mono text-xs text-muted">{t.stack}</dt>
@@ -106,8 +106,8 @@ const external = [
             </dd>
           </div>
         )}
-      </div>
-    </dl>
+      </dl>
+    </div>
 
     <div class="prose mt-4">
       <Content />
