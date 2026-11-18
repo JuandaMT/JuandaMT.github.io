@@ -247,3 +247,9 @@
     opacity: 1;
   }
 }
+
+/* Logo dot as a pseudo-element so formatting can't add a space before it. */
+.lab-logo::after {
+  content: '.';
+  color: var(--accent);
+}
