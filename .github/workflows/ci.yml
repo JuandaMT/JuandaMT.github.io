@@ -48,6 +48,7 @@ jobs:
             playwright-report/
             .lighthouseci/
           retention-days: 7
+          include-hidden-files: true
 
       - name: Upload site for GitHub Pages
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'

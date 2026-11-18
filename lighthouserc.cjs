@@ -9,7 +9,8 @@ module.exports = {
         'http://localhost/projects/agency-console/',
         'http://localhost/es/projects/coaching-platform/',
       ],
-      numberOfRuns: 1,
+      // 3 runs per URL: a single cold run on a shared CI runner is too noisy.
+      numberOfRuns: 3,
       settings: { chromeFlags: '--no-sandbox --headless=new' },
     },
     assert: {
