@@ -6,6 +6,10 @@ export const sceneState = {
   active: -1,
   /** 0..1 after the workflow section: particles drift away and dim. */
   release: 0,
+  /** Scroll velocity reported by Lenis (px per frame, signed). */
+  velocity: 0,
+  /** Overall page scroll progress, 0..1. */
+  progress: 0,
   /** Pointer in normalized device coords (-1..1). */
   pointer: { x: 0, y: 0 },
 };

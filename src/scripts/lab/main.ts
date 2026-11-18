@@ -18,7 +18,11 @@ function init() {
   gsap.registerPlugin(ScrollTrigger);
 
   const lenis = new Lenis({ lerp: 0.1 });
-  lenis.on('scroll', ScrollTrigger.update);
+  lenis.on('scroll', (l: Lenis) => {
+    ScrollTrigger.update();
+    sceneState.velocity = l.velocity;
+    sceneState.progress = l.progress;
+  });
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
 

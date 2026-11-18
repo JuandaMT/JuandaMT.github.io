@@ -1,5 +1,5 @@
 /**
- * Hero WebGL scene: a particle cloud that gathers into a graph of the workflow
+ * Hero WebGL scene: a low-res nebula behind a particle cloud that gathers into a graph of the workflow
  * steps as you scroll, with packets travelling along the pipeline.
  * Loaded lazily (dynamic import) after the page content is interactive.
  */
@@ -9,81 +9,56 @@ import {
   BufferGeometry,
   CatmullRomCurve3,
   Color,
+  HalfFloatType,
+  LinearFilter,
+  LinearSRGBColorSpace,
   Line,
   LineBasicMaterial,
   MathUtils,
+  Mesh,
   PerspectiveCamera,
   Points,
   PointsMaterial,
   Scene,
   ShaderMaterial,
+  Vector2,
   Vector3,
+  WebGLRenderTarget,
   WebGLRenderer,
 } from 'three';
 import { sceneState } from './state';
+import {
+  composeFragment,
+  fullscreenVertex,
+  nebulaFragment,
+  particleFragment,
+  particleVertex,
+} from './shaders';
 
-const ACCENT = new Color('#f0895b');
-const DIM = new Color('#b3ab9c');
+/**
+ * Shader colours are written straight to the canvas (no colour management in these
+ * ShaderMaterials), so they are taken as raw sRGB values to match the CSS palette.
+ */
+const raw = (hex: string) => new Color().setStyle(hex, LinearSRGBColorSpace);
+const ACCENT = raw('#f0895b');
+/** For built-in materials, which do their own colour management. */
+const ACCENT_MANAGED = new Color('#f0895b');
+const DIM = raw('#b3ab9c');
+const COOL = raw('#8d9abd');
+const BASE = raw('#07080b');
+const NEBULA_COOL = raw('#1a2236');
+/** The nebula is smooth, so it is rendered at a fraction of the CSS size and upscaled. */
+const NEBULA_SCALE = 0.33;
 
-const vertex = /* glsl */ `
-  uniform float uTime;
-  uniform float uGather;
-  uniform float uActive;
-  uniform float uSize;
-  uniform float uPixelRatio;
-  uniform vec2 uPointer;
-  attribute vec3 aTarget;
-  attribute float aNode;
-  attribute float aSeed;
-  varying float vGlow;
-  varying float vSeed;
-
-  void main() {
-    vec3 cloud = position;
-    cloud.x += sin(uTime * 0.18 + aSeed * 6.2831) * 0.25;
-    cloud.y += cos(uTime * 0.22 + aSeed * 12.566) * 0.25;
-    cloud.z += sin(uTime * 0.15 + aSeed * 3.14) * 0.2;
-
-    vec3 target = aTarget;
-    target.x += sin(uTime * 0.9 + aSeed * 40.0) * 0.04;
-    target.y += cos(uTime * 0.8 + aSeed * 30.0) * 0.04;
-
-    float g = smoothstep(0.0, 1.0, clamp(uGather * (0.7 + aSeed * 0.6), 0.0, 1.0));
-    vec3 p = mix(cloud, target, g);
-
-    // Push particles away from the pointer.
-    vec2 d = p.xy - uPointer;
-    float dist = length(d);
-    p.xy += normalize(d + 1e-4) * smoothstep(1.4, 0.0, dist) * 0.45;
-
-    vec4 mv = modelViewMatrix * vec4(p, 1.0);
-    gl_Position = projectionMatrix * mv;
-
-    float isActive = 1.0 - step(0.5, abs(aNode - uActive));
-    vGlow = isActive * g;
-    vSeed = aSeed;
-    gl_PointSize = uSize * uPixelRatio * (0.55 + aSeed * 0.9) * (1.0 + vGlow * 0.7) / -mv.z;
-  }
-`;
-
-const fragment = /* glsl */ `
-  uniform vec3 uDim;
-  uniform vec3 uAccent;
-  uniform float uFade;
-  uniform float uGather;
-  varying float vGlow;
-  varying float vSeed;
-
-  void main() {
-    float d = length(gl_PointCoord - 0.5);
-    if (d > 0.5) discard;
-    float a = smoothstep(0.5, 0.05, d);
-    float warm = max(vGlow, step(0.93, vSeed) * 0.6);
-    vec3 color = mix(uDim, uAccent, warm);
-    float alpha = a * (0.4 + vSeed * 0.6 + vGlow * 0.3) * uFade;
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
+/** One triangle that covers the whole viewport (cheaper than a quad). */
+function fullscreenTriangle() {
+  const g = new BufferGeometry();
+  g.setAttribute(
+    'position',
+    new BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3),
+  );
+  return g;
+}
 
 export interface LabScene {
   dispose(): void;
@@ -131,6 +106,50 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
     );
   }
 
+  // ---- Nebula background (low-res render target, upscaled) ----
+  const triangle = fullscreenTriangle();
+  const nebulaTarget = new WebGLRenderTarget(1, 1, {
+    type: HalfFloatType,
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    depthBuffer: false,
+  });
+  const nebulaUniforms = {
+    uAspect: { value: new Vector2(1, 1) },
+    uTime: { value: 0 },
+    uScroll: { value: 0 },
+    uVelocity: { value: 0 },
+    uGather: { value: 0 },
+    uRelease: { value: 0 },
+    uPointer: { value: new Vector2() },
+    uBase: { value: BASE },
+    uCool: { value: NEBULA_COOL },
+    uAccent: { value: ACCENT },
+  };
+  const nebulaMaterial = new ShaderMaterial({
+    vertexShader: fullscreenVertex,
+    fragmentShader: nebulaFragment,
+    uniforms: nebulaUniforms,
+    depthTest: false,
+    depthWrite: false,
+  });
+  const nebulaScene = new Scene();
+  const nebulaMesh = new Mesh(triangle, nebulaMaterial);
+  nebulaMesh.frustumCulled = false;
+  nebulaScene.add(nebulaMesh);
+
+  const composeMaterial = new ShaderMaterial({
+    vertexShader: fullscreenVertex,
+    fragmentShader: composeFragment,
+    uniforms: { uTex: { value: nebulaTarget.texture } },
+    depthTest: false,
+    depthWrite: false,
+  });
+  const backdrop = new Mesh(triangle, composeMaterial);
+  backdrop.frustumCulled = false;
+  backdrop.renderOrder = -1;
+  scene.add(backdrop);
+
   // ---- Particles ----
   const positions = new Float32Array(count * 3);
   const targets = new Float32Array(count * 3);
@@ -173,14 +192,16 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
     uActive: { value: -1 },
     uSize: { value: 75 },
     uPixelRatio: { value: pixelRatio },
-    uPointer: { value: { x: 0, y: 0 } },
+    uVelocity: { value: 0 },
+    uPointer: { value: new Vector2() },
     uDim: { value: DIM },
+    uCool: { value: COOL },
     uAccent: { value: ACCENT },
     uFade: { value: 1 },
   };
   const material = new ShaderMaterial({
-    vertexShader: vertex,
-    fragmentShader: fragment,
+    vertexShader: particleVertex,
+    fragmentShader: particleFragment,
     uniforms,
     transparent: true,
     depthWrite: false,
@@ -190,7 +211,11 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
 
   // ---- Pipeline line + packets ----
   const curve = new CatmullRomCurve3(nodes);
-  const lineMaterial = new LineBasicMaterial({ color: ACCENT, transparent: true, opacity: 0 });
+  const lineMaterial = new LineBasicMaterial({
+    color: ACCENT_MANAGED,
+    transparent: true,
+    opacity: 0,
+  });
   scene.add(new Line(new BufferGeometry().setFromPoints(curve.getPoints(160)), lineMaterial));
 
   const packetCount = 7;
@@ -198,7 +223,7 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
   const packetGeometry = new BufferGeometry();
   packetGeometry.setAttribute('position', new BufferAttribute(packetPositions, 3));
   const packetMaterial = new PointsMaterial({
-    color: ACCENT,
+    color: ACCENT_MANAGED,
     size: 0.11,
     transparent: true,
     opacity: 0,
@@ -214,6 +239,9 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
     const w = window.innerWidth;
     const h = window.innerHeight;
     renderer.setSize(w, h, false);
+    nebulaTarget.setSize(Math.ceil(w * NEBULA_SCALE), Math.ceil(h * NEBULA_SCALE));
+    const aspect = w / h;
+    nebulaUniforms.uAspect.value.set(Math.max(aspect, 1), Math.max(1 / aspect, 1));
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     halfH = Math.tan(MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
@@ -223,7 +251,7 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
   window.addEventListener('resize', resize);
 
   // ---- Loop (eases toward sceneState) ----
-  const eased = { gather: 0, release: 0, px: 0, py: 0 };
+  const eased = { gather: 0, release: 0, px: 0, py: 0, velocity: 0, scroll: 0 };
   const tmp = new Vector3();
   let frame = 0;
   let last = performance.now();
@@ -240,13 +268,26 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
     eased.release += (sceneState.release - eased.release) * k;
     eased.px += (sceneState.pointer.x - eased.px) * k * 1.5;
     eased.py += (sceneState.pointer.y - eased.py) * k * 1.5;
+    // Scroll speed (px/frame from Lenis) normalised to roughly -1.5..1.5, eased softly.
+    const v = MathUtils.clamp(sceneState.velocity / 40, -1.5, 1.5);
+    eased.velocity += (v - eased.velocity) * k * 0.6;
+    sceneState.velocity *= 1 - k; // Lenis may stop emitting before velocity reaches 0
+    eased.scroll += (sceneState.progress - eased.scroll) * k;
 
     const gather = eased.gather * (1 - eased.release * 0.75);
     uniforms.uTime.value += dt;
     uniforms.uGather.value = gather;
     uniforms.uActive.value = eased.release > 0.5 ? -1 : sceneState.active;
     uniforms.uFade.value = 1 - eased.release * 0.55;
-    uniforms.uPointer.value = { x: eased.px * halfW, y: eased.py * halfH };
+    uniforms.uPointer.value.set(eased.px * halfW, eased.py * halfH);
+    uniforms.uVelocity.value = eased.velocity;
+
+    nebulaUniforms.uTime.value = uniforms.uTime.value;
+    nebulaUniforms.uScroll.value = eased.scroll;
+    nebulaUniforms.uVelocity.value = eased.velocity;
+    nebulaUniforms.uGather.value = gather;
+    nebulaUniforms.uRelease.value = eased.release;
+    nebulaUniforms.uPointer.value.set(eased.px, eased.py);
 
     lineMaterial.opacity = gather * 0.35;
     packetMaterial.opacity = gather;
@@ -263,6 +304,9 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
     camera.position.y += (eased.py * 0.3 - camera.position.y) * k;
     camera.lookAt(0, 0, 0);
 
+    renderer.setRenderTarget(nebulaTarget);
+    renderer.render(nebulaScene, camera);
+    renderer.setRenderTarget(null);
     renderer.render(scene, camera);
     frame = requestAnimationFrame(tick);
   }
@@ -290,6 +334,10 @@ export function createScene(canvas: HTMLCanvasElement, steps: number): LabScene 
       document.removeEventListener('visibilitychange', onVisibility);
       geometry.dispose();
       material.dispose();
+      triangle.dispose();
+      nebulaMaterial.dispose();
+      composeMaterial.dispose();
+      nebulaTarget.dispose();
       renderer.dispose();
     },
   };
