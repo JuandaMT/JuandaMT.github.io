@@ -4,4 +4,4 @@
 - **Ubicación del contenido.** Los textos van en `src/i18n/{en,es}.ts`, los proyectos y la experiencia en `src/content/**`. No metas texto en los componentes.
 - **Idiomas.** Todo cambio de contenido se hace en inglés y en español.
 - **Antes de commitear:** `pnpm lint && pnpm check && pnpm build && pnpm test`.
-- **Servidor.** El preview de Astro 7 puede quedarse en segundo plano. Si Playwright dice "webServer exited early", ejecuta `pnpm astro preview stop`.
+- **Servidor.** Astro 7 pone `astro preview` en segundo plano si detecta un agente. Playwright usa `--ignore-lock` para evitarlo; si un preview se queda colgado: `pnpm astro preview stop`.
