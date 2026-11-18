@@ -1,10 +1,6 @@
 # Pendientes
 
-Generado con `pnpm todos`. 47 elementos. No edites a mano: resuelve el TODO en su fichero y vuelve a ejecutar el script.
-
-## `public/cv`
-
-- [ ] Añadir los PDF del CV (inglés y español)
+Generado con `pnpm todos`. 45 elementos. No edites a mano: resuelve el TODO en su fichero y vuelve a ejecutar el script.
 
 ## `src/components/sections/About.astro`
 
@@ -97,10 +93,6 @@ Generado con `pnpm todos`. 47 elementos. No edites a mano: resuelve el TODO en s
 - [ ] Tu papel en el proyecto
 - [ ] Capturas
 - [ ] Enlace (si lo hay)
-
-## `src/data/profile.ts`
-
-- [ ] añadir los PDF del CV en public/cv/ con estos nombres.
 
 ## `src/i18n/en.ts`
 

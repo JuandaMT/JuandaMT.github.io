@@ -15,7 +15,6 @@ export const profile = {
     bimmate: 'https://bimmate.es',
   },
   // Files live in /public/cv. The download button only renders when the file exists.
-  // TODO: añadir los PDF del CV en public/cv/ con estos nombres.
   cv: {
     en: '/cv/juan-david-mayorga-cv-en.pdf',
     es: '/cv/juan-david-mayorga-cv-es.pdf',
