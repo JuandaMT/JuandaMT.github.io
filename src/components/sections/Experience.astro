@@ -2,6 +2,7 @@
 import SectionHeading from '../SectionHeading.astro';
 import Chips from '../Chips.astro';
 import Todo from '../Todo.astro';
+import ExtLink from '../ExtLink.astro';
 import { type Lang, useTranslations } from '../../i18n/utils';
 import { getExperience } from '../../lib/content';
 
@@ -29,10 +30,19 @@ const items = await getExperience(lang);
           </p>
           <div>
             <h3 class="text-xl font-semibold tracking-tight">
-              {data.role}
-              <span class="font-normal text-muted"> · {data.company}</span>
+              {data.companyUrl ? (
+                <ExtLink href={data.companyUrl} lang={lang} class="hover:text-accent">
+                  {data.company}
+                  <span aria-hidden="true" class="ml-1 text-base text-muted">
+                    ↗
+                  </span>
+                </ExtLink>
+              ) : (
+                data.company
+              )}
             </h3>
-            <p class="mt-1.5 text-muted">{data.context}</p>
+            <p class="mt-1 font-medium">{data.role}</p>
+            <p class="mt-2 text-muted">{data.context}</p>
             {data.todos.length > 0 && (
               <div class="mt-3 flex flex-wrap gap-2">
                 {data.todos.map((note) => (

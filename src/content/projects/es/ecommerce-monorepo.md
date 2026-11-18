@@ -1,16 +1,14 @@
 ---
 title: Plataforma e-commerce en monorepo
-tagline: Monorepo de e-commerce construido alrededor de un sistema de diseño compartido.
+tagline: Ecosistema de e-commerce escalable para crear tiendas online personalizadas a partir de componentes compartidos y un sistema de diseño reutilizable.
 contribution:
   - Organicé el código como un monorepo con Turborepo.
   - Construí un sistema de diseño compartido en React 19 y TypeScript.
-stack: [React 19, TypeScript, Turborepo]
+stack: [React 19, TypeScript, Turborepo, Node.js]
 order: 3
 detailPage: true
 todos:
-  - 'Confirmar que la lista "Qué hice" es correcta (redactada a partir del brief)'
   - 'Enlace al repositorio del monorepo e-commerce'
-  - 'Problema / objetivo del proyecto'
   - 'Qué apps y paquetes contiene el monorepo'
   - 'Estado del proyecto (campo status)'
   - 'Capturas del sistema de diseño'

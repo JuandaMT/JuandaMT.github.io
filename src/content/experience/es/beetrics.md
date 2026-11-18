@@ -1,15 +1,16 @@
 ---
 company: Beetrics
-role: Desarrollador frontend (colaboración temporal)
-start: '2025'
-end: '2026'
-context: Fintech que construye dashboards de analítica con IA.
+role: Frontend Developer (colaboración temporal, por proyectos)
+start: sep 2025
+end: abr 2026
+location: Valencia
+context: Fintech que construye una plataforma de analítica de datos con IA. Lo compaginé con mi puesto en BiMMate.
 highlights:
-  - Desarrollé interfaces en Angular para dashboards de analítica con IA en el sector fintech.
+  - Desarrollé interfaces responsivas y minimalistas en Angular para la plataforma.
+  - Integré APIs del backend para visualizar datos en sus dashboards de análisis, con foco en rendimiento y experiencia de usuario.
+  - Colaboré con un equipo técnico multidisciplinar.
 stack: [Angular, TypeScript]
 order: 2
 todos:
-  - 'Meses de inicio y fin en Beetrics'
-  - 'Más detalle: qué dashboards, tu papel, qué resolviste'
-  - 'Confirmar el título del puesto en Beetrics'
+  - 'Confirmar mes de fin en Beetrics (abril 2026)'
 ---

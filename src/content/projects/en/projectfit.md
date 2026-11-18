@@ -1,10 +1,10 @@
 ---
 title: ProjectFit
-tagline: Training and nutrition app, now testing with users.
+tagline: Personalised, evidence-based training and nutrition app.
+problem: It tells users what to do to reach their goals and measures their results based on what they eat and how they train. Now testing with a first group of users.
 status: user-testing
 order: 4
 todos:
-  - 'Qué hace ProjectFit y para quién'
   - 'Stack de ProjectFit'
   - 'Tu papel en el proyecto'
   - 'Capturas'

@@ -3,17 +3,16 @@ title: Plataforma de coaching online
 tagline: SaaS en desarrollo, de camino al lanzamiento.
 contribution:
   - Construyo el producto de principio a fin.
-  - 'Lo desarrollo con mi flujo agéntico en Claude Code: especificaciones escritas, un subagente de auditoría de seguridad y hooks que bloquean el código sin revisar.'
+  - 'Lo desarrollo con mi flujo agéntico en Claude Code: un subagente de auditoría de seguridad y hooks que bloquean el push de código sin revisar, empaquetados como plugin que se instala con un solo comando.'
+  - Automatizo procesos en producción.
 status: in-development
 linkNote: Código privado · demo bajo petición
 order: 2
 detailPage: true
 todos:
-  - 'Nombre público de la plataforma (o confirmar que se queda genérico)'
   - 'Qué problema resuelve y para quién'
   - 'Stack del proyecto'
   - 'Confirmar qué partes del flujo agéntico se usan aquí y un ejemplo concreto'
-  - 'Capturas (si se pueden enseñar)'
 ---
 
 ## Por qué está aquí
@@ -25,6 +24,7 @@ Es el proyecto donde aplico mi flujo agéntico de forma más completa. El códig
 - **Primero la especificación.** Cada funcionalidad parte de una especificación escrita con criterios de aceptación.
 - **Implementación con agente.** Claude Code implementa contra la especificación en pasos pequeños y revisables.
 - **Auditoría de seguridad.** Un subagente dedicado audita los cambios.
-- **Barreras.** Unos hooks bloquean el código que no se ha revisado.
+- **Barreras.** Unos hooks bloquean el push de código que no se ha revisado.
+- **Reutilizable.** El subagente y los hooks están empaquetados como plugin de Claude Code que se instala con un solo comando.
 
 <!-- TODO: añadir un ejemplo real (una funcionalidad concreta y cómo pasó por el flujo). -->
