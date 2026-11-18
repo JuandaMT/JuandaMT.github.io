@@ -204,6 +204,25 @@ const es: UI = {
   footer: {
     builtWith: 'Hecho con Astro y Tailwind CSS. Sin cookies ni rastreadores.',
   },
+  lab: {
+    title: 'Portfolio interactivo',
+    description:
+      'Versión interactiva del portfolio de Juan David Mayorga: un recorrido en WebGL por su flujo de desarrollo agéntico, sus proyectos y su experiencia.',
+    classic: 'Versión clásica',
+    interactive: 'Versión interactiva',
+    interactiveCta: 'Ver la versión interactiva de este portfolio',
+    eyebrow: 'Desarrollador full stack · Valencia',
+    lead: 'Construyo productos SaaS de principio a fin y los entrego con agentes de IA bajo revisión. Haz scroll para ver cómo.',
+    scroll: 'Scroll',
+    flowLabel: 'El ciclo',
+    flowTitle: 'Cada cambio pasa por el mismo ciclo.',
+    workLabel: 'Proyectos',
+    workHint: 'Sigue bajando',
+    caseStudy: 'Caso de estudio',
+    experienceLabel: 'Experiencia',
+    stackLabel: 'Stack',
+    contactCta: 'Escríbeme',
+  },
   notFound: {
     title: 'Página no encontrada',
     text: 'Esta página no existe o ha cambiado de sitio.',

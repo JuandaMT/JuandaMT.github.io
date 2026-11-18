@@ -204,6 +204,25 @@ const en = {
   footer: {
     builtWith: 'Built with Astro and Tailwind CSS. No cookies, no trackers.',
   },
+  lab: {
+    title: 'Interactive portfolio',
+    description:
+      'Interactive version of Juan David Mayorga’s portfolio: a WebGL walk through his agentic development workflow, projects and experience.',
+    classic: 'Classic version',
+    interactive: 'Interactive version',
+    interactiveCta: 'See the interactive version of this portfolio',
+    eyebrow: 'Full stack developer · Valencia, Spain',
+    lead: 'I build SaaS products end to end and ship them with AI agents under review. Scroll to walk through how.',
+    scroll: 'Scroll',
+    flowLabel: 'The loop',
+    flowTitle: 'Every change goes through the same loop.',
+    workLabel: 'Selected work',
+    workHint: 'Keep scrolling',
+    caseStudy: 'Case study',
+    experienceLabel: 'Experience',
+    stackLabel: 'Stack',
+    contactCta: 'Write me',
+  },
   notFound: {
     title: 'Page not found',
     text: 'This page doesn’t exist or has moved.',

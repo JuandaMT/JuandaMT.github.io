@@ -1,5 +1,5 @@
 ---
-import { type Lang, useTranslations } from '../i18n/utils';
+import { type Lang, localizePath, useTranslations } from '../i18n/utils';
 import { profile } from '../data/profile';
 
 interface Props {
@@ -15,6 +15,11 @@ const year = new Date().getFullYear();
     <p>
       © {year} {profile.name}
     </p>
-    <p>{t.footer.builtWith}</p>
+    <p>
+      {t.footer.builtWith}{' '}
+      <a href={localizePath('/lab/', lang)} class="link text-muted">
+        {t.lab.interactive}
+      </a>
+    </p>
   </div>
 </footer>

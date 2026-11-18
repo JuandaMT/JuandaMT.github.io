@@ -1,7 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 /** Every internal link, image and OG image on the main pages must resolve. */
-for (const start of ['/', '/es/', '/projects/agency-console/', '/es/projects/agency-console/']) {
+for (const start of [
+  '/',
+  '/es/',
+  '/projects/agency-console/',
+  '/es/projects/agency-console/',
+  '/lab/',
+  '/es/lab/',
+]) {
   test(`internal links resolve from ${start}`, async ({ page, request, baseURL }) => {
     await page.goto(start);
     const urls = await page.evaluate(() => {

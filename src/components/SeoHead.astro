@@ -61,7 +61,9 @@ const jsonLd = {
 <meta name="description" content={desc} />
 {noindex && <meta name="robots" content="noindex" />}
 <link rel="canonical" href={canonical} />
-{alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+{alternates.map((a) => (
+  <link rel="alternate" hreflang={a.lang} href={a.href} />
+))}
 <link rel="alternate" hreflang="x-default" href={xDefault} />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="sitemap" href="/sitemap-index.xml" />

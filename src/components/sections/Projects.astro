@@ -3,14 +3,15 @@ import SectionHeading from '../SectionHeading.astro';
 import ProjectCard from '../ProjectCard.astro';
 import Chips from '../Chips.astro';
 import Todo from '../Todo.astro';
-import { type Lang, useTranslations } from '../../i18n/utils';
+import { type Lang, localizePath, useTranslations } from '../../i18n/utils';
 import { getProjects } from '../../lib/content';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
-const t = useTranslations(lang).projects;
+const ui = useTranslations(lang);
+const t = ui.projects;
 const all = await getProjects(lang);
 const main = all.filter((p) => p.data.tier === 'main');
 const lab = all.filter((p) => p.data.tier === 'lab');
@@ -31,6 +32,22 @@ const lab = all.filter((p) => p.data.tier === 'lab');
       <div class="mt-16">
         <h3 class="font-mono text-xs tracking-wide text-accent">{t.labTitle}</h3>
         <p class="mt-2 text-sm text-muted">{t.labIntro}</p>
+        <a
+          href={localizePath('/lab/', lang)}
+          class="group mt-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-accent/60"
+          data-lab-link
+        >
+          <span>
+            <span class="block font-semibold tracking-tight">{ui.lab.interactive}</span>
+            <span class="mt-1 block text-sm text-muted">{ui.lab.interactiveCta}</span>
+          </span>
+          <span
+            aria-hidden="true"
+            class="text-accent transition-transform group-hover:translate-x-1"
+          >
+            →
+          </span>
+        </a>
         <div class="mt-6 grid gap-5 md:grid-cols-2">
           {lab.map(({ data }) => (
             <article class="reveal rounded-2xl border border-dashed border-line p-6">

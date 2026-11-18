@@ -1,0 +1,249 @@
+/* Interactive portfolio (/lab/). Dark-only by design; loaded after global.css. */
+
+.lab {
+  --bg: #07080b;
+  --surface: #0f1117;
+  --ink: #ece6da;
+  --muted: #a39d92;
+  --line: #232835;
+  --accent: #f0895b;
+  --accent-soft: #2a1f1a;
+  --accent-ink: #07080b;
+  color-scheme: dark;
+}
+
+.lab body {
+  background:
+    radial-gradient(60% 50% at 70% 20%, rgb(240 137 91 / 0.08), transparent 70%),
+    radial-gradient(50% 40% at 20% 80%, rgb(120 130 160 / 0.06), transparent 70%), var(--bg);
+  overflow-x: clip;
+}
+
+/* WebGL canvas: fixed behind everything. */
+.lab-scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.lab-scene.is-ready {
+  opacity: 1;
+}
+.lab-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Film grain. */
+.lab-grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lab-grain {
+    animation: grain 1s steps(4) infinite;
+  }
+}
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3%, 2%);
+  }
+  50% {
+    transform: translate(2%, -3%);
+  }
+  75% {
+    transform: translate(-2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+/* Custom cursor (fine pointers only, added by JS). */
+.has-cursor,
+.has-cursor * {
+  cursor: none !important;
+}
+.lab-cursor-dot,
+.lab-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  border-radius: 999px;
+  translate: -50% -50%;
+}
+.lab-cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+}
+.lab-cursor-ring {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgb(236 230 218 / 0.45);
+  transition:
+    width 0.25s ease,
+    height 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+.lab-cursor-ring.is-hover {
+  width: 64px;
+  height: 64px;
+  border-color: var(--accent);
+  background: rgb(240 137 91 / 0.08);
+}
+
+/* Kinetic title: each line clips its characters. */
+.lab-title .line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+.lab-title .char {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ---------- Flow (pinned) ----------
+   Without JS / with reduced motion: a plain list.
+   With JS: steps stack and only the active one shows. */
+.lab-flow.is-pinned {
+  height: 100svh;
+}
+.lab-flow.is-pinned .lab-flow-steps {
+  position: relative;
+  min-height: 15rem;
+}
+.lab-flow.is-pinned [data-step] {
+  position: absolute;
+  inset: 0 auto auto 0;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+.lab-flow.is-pinned [data-step].is-active {
+  opacity: 1;
+  transform: none;
+}
+.lab-flow-bar {
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.lab-flow:not(.is-pinned) .lab-flow-progress {
+  display: none;
+}
+
+/* ---------- Work (horizontal) ---------- */
+.lab-track {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 1rem;
+  scrollbar-width: thin;
+}
+.lab-track > * {
+  scroll-snap-align: start;
+}
+.lab-work.is-horizontal {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.lab-work.is-horizontal .lab-track {
+  overflow: visible;
+  scroll-snap-type: none;
+  will-change: transform;
+}
+
+/* Cards: spotlight follows the pointer, tilt is applied by JS. */
+.lab-card {
+  --mx: 50%;
+  --my: 50%;
+  background:
+    radial-gradient(28rem circle at var(--mx) var(--my), rgb(240 137 91 / 0.12), transparent 60%),
+    rgb(15 17 23 / 0.72);
+  backdrop-filter: blur(6px);
+  transform-style: preserve-3d;
+}
+
+/* ---------- Experience: sticky stacked cards (pure CSS) ---------- */
+.lab-stack-card {
+  position: sticky;
+  top: calc(12vh + var(--i) * 1.5rem);
+}
+
+/* ---------- Marquee ---------- */
+.lab-marquee {
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.lab-marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2.5rem;
+  padding-right: 2.5rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lab-marquee-track {
+    animation: marquee var(--speed, 40s) linear infinite;
+  }
+  .lab-marquee[data-reverse] .lab-marquee-track {
+    animation-direction: reverse;
+  }
+  .lab-marquee:hover .lab-marquee-track {
+    animation-play-state: paused;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-marquee {
+    mask-image: none;
+  }
+  .lab-marquee-track {
+    flex-wrap: wrap;
+    flex-shrink: 1;
+  }
+  .lab-marquee-track[aria-hidden='true'] {
+    display: none;
+  }
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lab-scroll-hint {
+    animation: hint 2.2s ease-in-out infinite;
+  }
+}
+@keyframes hint {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}

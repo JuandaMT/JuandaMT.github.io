@@ -9,6 +9,8 @@ const pages = [
   { path: '/es/projects/agency-console/', lang: 'es' },
   { path: '/es/projects/coaching-platform/', lang: 'es' },
   { path: '/es/projects/ecommerce-monorepo/', lang: 'es' },
+  { path: '/lab/', lang: 'en' },
+  { path: '/es/lab/', lang: 'es' },
 ];
 
 for (const { path, lang } of pages) {

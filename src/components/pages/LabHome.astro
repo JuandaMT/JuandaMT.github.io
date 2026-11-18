@@ -1,0 +1,290 @@
+---
+import Lab from '../../layouts/Lab.astro';
+import ExtLink from '../ExtLink.astro';
+import { type Lang, localizePath, useTranslations } from '../../i18n/utils';
+import { getExperience, getProjects, publicFileExists, slugOf } from '../../lib/content';
+import { profile } from '../../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const ui = useTranslations(lang);
+const t = ui.lab;
+const steps = ui.ai.steps;
+const projects = (await getProjects(lang)).filter((p) => p.data.tier === 'main');
+const experience = await getExperience(lang);
+const stack = ui.skills.groups.flatMap((g) => g.items);
+const half = Math.ceil(stack.length / 2);
+const rows = [stack.slice(0, half), stack.slice(half)];
+const cvs = [
+  { label: ui.contact.cvEn, href: profile.cv.en, lang: 'en' },
+  { label: ui.contact.cvEs, href: profile.cv.es, lang: 'es' },
+].filter((c) => publicFileExists(c.href));
+const [first, ...rest] = profile.name.split(' ');
+const nameLines = [`${first} ${rest[0] ?? ''}`.trim(), rest.slice(1).join(' ')].filter(Boolean);
+---
+
+<Lab lang={lang} steps={steps.length}>
+  <!-- ============ Hero ============ -->
+  <section class="relative flex min-h-svh flex-col justify-end px-4 pt-24 pb-10 sm:px-8 sm:pb-14">
+    <p class="font-mono text-xs tracking-wide text-accent" data-hero-fade>
+      {t.eyebrow}
+    </p>
+    <h1
+      class="lab-title mt-4 text-[clamp(3.4rem,13vw,12.5rem)] leading-[0.86] font-semibold tracking-[-0.055em]"
+      aria-label={profile.name}
+      data-kinetic
+    >
+      {nameLines.map((line) => (
+        <span class="line" aria-hidden="true">
+          <span>{line}</span>
+        </span>
+      ))}
+    </h1>
+    <div class="mt-8 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
+      <p class="max-w-xl text-lg leading-relaxed text-pretty text-muted sm:text-xl" data-hero-fade>
+        {t.lead}
+      </p>
+      <a
+        href="#flow"
+        class="lab-scroll-hint flex items-center gap-3 font-mono text-xs tracking-widest text-muted uppercase"
+        data-hero-fade
+      >
+        {t.scroll}
+        <span aria-hidden="true" class="inline-block h-8 w-px bg-ink/40"></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ Flow (pinned) ============ -->
+  <section
+    id="flow"
+    class="lab-flow relative flex flex-col justify-end px-4 py-24 sm:px-8 sm:pb-16"
+    aria-labelledby="flow-title"
+    data-flow
+    tabindex="-1"
+  >
+    <div class="max-w-3xl">
+      <p class="font-mono text-xs tracking-wide text-accent">{t.flowLabel}</p>
+      <h2
+        id="flow-title"
+        class="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
+      >
+        {t.flowTitle}
+      </h2>
+      <div class="lab-flow-progress mt-8 flex items-center gap-4">
+        <span class="font-mono text-xs text-muted" data-flow-counter></span>
+        <span class="relative h-px w-40 bg-line" aria-hidden="true">
+          <span class="lab-flow-bar absolute inset-0 bg-accent"></span>
+        </span>
+      </div>
+      <ol class="lab-flow-steps mt-8 space-y-10">
+        {steps.map((step, i) => (
+          <li data-step>
+            <p class="font-mono text-xs text-muted">
+              {String(i + 1).padStart(2, '0')} · {step.tag}
+            </p>
+            <h3 class="mt-2 text-4xl font-semibold tracking-tight sm:text-6xl">{step.name}</h3>
+            <p class="mt-4 max-w-xl text-lg leading-relaxed text-pretty text-muted">{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ Work (horizontal) ============ -->
+  <section id="work" class="lab-work relative py-24" aria-labelledby="work-title" data-work>
+    <div class="mb-10 flex items-end justify-between gap-6 px-4 sm:px-8">
+      <h2 id="work-title" class="text-5xl font-semibold tracking-[-0.04em] sm:text-7xl" data-reveal>
+        {t.workLabel}
+      </h2>
+      <p class="hidden font-mono text-xs text-muted md:block" aria-hidden="true">
+        {t.workHint} →
+      </p>
+    </div>
+    <ul class="lab-track px-4 sm:px-8">
+      {projects.map((project, i) => {
+        const d = project.data;
+        const href = localizePath(`/projects/${slugOf(project)}/`, lang);
+        return (
+          <li
+            class="lab-card flex w-[85vw] shrink-0 flex-col rounded-3xl border border-line p-7 sm:w-[min(36rem,60vw)] sm:p-9"
+            data-card
+            data-tilt
+          >
+            <div class="flex items-center justify-between font-mono text-xs text-muted">
+              <span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              {d.status && (
+                <span class="rounded-full border border-line px-2.5 py-0.5">
+                  {ui.projects.status[d.status]}
+                </span>
+              )}
+            </div>
+            <h3 class="mt-16 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">{d.title}</h3>
+            <p class="mt-4 text-lg leading-relaxed text-pretty text-muted">{d.tagline}</p>
+            {d.stack.length > 0 && (
+              <p class="mt-6 font-mono text-xs text-muted">{d.stack.join(' · ')}</p>
+            )}
+            <div class="mt-auto flex flex-wrap items-center gap-x-6 gap-y-2 pt-10 text-sm font-medium">
+              {d.detailPage && (
+                <a href={href} class="link">
+                  {t.caseStudy}
+                  <span aria-hidden="true" class="ml-1">
+                    →
+                  </span>
+                </a>
+              )}
+              {d.links.repo && (
+                <ExtLink href={d.links.repo} lang={lang} class="link">
+                  {ui.projects.repo}
+                  <span aria-hidden="true" class="ml-1">
+                    ↗
+                  </span>
+                </ExtLink>
+              )}
+              {d.links.live && (
+                <ExtLink href={d.links.live} lang={lang} class="link">
+                  {ui.projects.live}
+                  <span aria-hidden="true" class="ml-1">
+                    ↗
+                  </span>
+                </ExtLink>
+              )}
+              {d.linkNote && (
+                <span class="font-mono text-xs font-normal text-muted">{d.linkNote}</span>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+
+  <!-- ============ Experience (stacked) ============ -->
+  <section id="experience" class="relative px-4 py-24 sm:px-8 sm:py-32" aria-labelledby="exp-title">
+    <h2 id="exp-title" class="text-5xl font-semibold tracking-[-0.04em] sm:text-7xl" data-reveal>
+      {t.experienceLabel}
+    </h2>
+    <ol class="mt-14 space-y-8 pb-[10vh]">
+      {experience.map(({ data }, i) => (
+        <li
+          class="lab-stack-card rounded-3xl border border-line bg-surface p-7 shadow-[0_-20px_60px_-30px_rgb(0_0_0/0.8)] sm:p-10"
+          style={`--i:${i}`}
+        >
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+            <h3 class="text-3xl font-semibold tracking-tight sm:text-4xl">{data.company}</h3>
+            <p class="font-mono text-xs text-muted">
+              {data.start} — {data.end ?? ui.experience.present}
+            </p>
+          </div>
+          <p class="mt-2 font-medium">{data.role}</p>
+          <p class="mt-3 max-w-3xl text-muted">{data.context}</p>
+          <ul class="mt-6 grid gap-3 text-sm leading-relaxed sm:grid-cols-2">
+            {data.highlights.map((h) => (
+              <li class="relative pl-4 text-pretty before:absolute before:top-[0.65em] before:left-0 before:size-1.5 before:rounded-full before:bg-accent">
+                {h}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <!-- ============ Stack (marquee) ============ -->
+  <section class="relative space-y-4 py-16" aria-labelledby="stack-title">
+    <h2 id="stack-title" class="px-4 font-mono text-xs tracking-wide text-accent sm:px-8">
+      {t.stackLabel}
+    </h2>
+    {rows.map((row, r) => (
+      <div
+        class="lab-marquee"
+        data-reverse={r === 1 ? '' : undefined}
+        style={`--speed:${50 + r * 10}s`}
+      >
+        {[0, 1].map((copy) => (
+          <ul
+            class="lab-marquee-track text-3xl font-semibold tracking-tight whitespace-nowrap text-ink/80 sm:text-5xl"
+            aria-hidden={copy === 1 ? 'true' : undefined}
+          >
+            {row.map((item) => (
+              <li class="flex items-center gap-10">
+                {item}
+                <span class="text-accent" aria-hidden="true">
+                  ✦
+                </span>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <!-- ============ Contact ============ -->
+  <section
+    id="contact"
+    class="relative flex min-h-[90svh] flex-col justify-center px-4 py-24 sm:px-8"
+    aria-labelledby="contact-title"
+  >
+    <h2
+      id="contact-title"
+      class="text-[clamp(3.5rem,14vw,13rem)] leading-[0.85] font-semibold tracking-[-0.055em]"
+      data-reveal
+    >
+      {ui.contact.title}
+    </h2>
+    <p class="mt-8 max-w-xl text-lg leading-relaxed text-pretty text-muted" data-reveal>
+      {ui.contact.text}
+    </p>
+    <div class="mt-12 flex flex-wrap items-center gap-4" data-reveal>
+      {profile.email && (
+        <a
+          href={`mailto:${profile.email}`}
+          class="inline-flex h-16 items-center rounded-full bg-accent px-8 text-lg font-semibold text-accent-ink"
+          data-magnetic
+        >
+          {t.contactCta}
+          <span class="ml-2" aria-hidden="true">
+            ↗
+          </span>
+        </a>
+      )}
+      <ExtLink
+        href={profile.links.linkedin}
+        lang={lang}
+        class="inline-flex h-16 items-center rounded-full border border-line px-7 font-medium"
+        data-magnetic
+      >
+        LinkedIn
+      </ExtLink>
+      <ExtLink
+        href={profile.links.github}
+        lang={lang}
+        class="inline-flex h-16 items-center rounded-full border border-line px-7 font-medium"
+        data-magnetic
+      >
+        GitHub
+      </ExtLink>
+    </div>
+    {cvs.length > 0 && (
+      <p class="mt-10 flex flex-wrap items-center gap-4 font-mono text-xs text-muted" data-reveal>
+        <span>{ui.contact.cvTitle}</span>
+        {cvs.map((c) => (
+          <a href={c.href} download hreflang={c.lang} class="link text-ink">
+            {c.label}
+          </a>
+        ))}
+      </p>
+    )}
+    <p class="mt-24 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
+      <span>
+        © {new Date().getFullYear()} {profile.name}
+      </span>
+      <a href={localizePath('/', lang)} class="link text-muted">
+        {t.classic} →
+      </a>
+    </p>
+  </section>
+</Lab>

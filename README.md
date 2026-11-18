@@ -6,6 +6,20 @@ Web personal estática en inglés (`/`) y español (`/es/`). Hecha con **Astro 7
 - Accesibilidad comprobada con axe (WCAG 2.2 A/AA) en modo claro y oscuro.
 - SEO: canonical, `hreflang` (en, es, x-default), Open Graph con imagen por página, sitemap y `robots.txt`.
 
+## Versión interactiva (`/lab/`)
+
+`/lab/` y `/es/lab/` son una versión inmersiva del portfolio, enlazada desde el bloque "Laboratorio" y desde el pie de página. Usa el mismo contenido que la web clásica (`src/content`, `src/i18n`).
+
+- **Escena WebGL** (Three.js, `src/scripts/lab/scene.ts`): una nube de partículas que se agrupa en un grafo con los pasos del flujo agéntico al hacer scroll.
+- **Movimiento** (GSAP + ScrollTrigger + Lenis, `src/scripts/lab/main.ts`):
+  - título letra a letra;
+  - sección del flujo fijada en pantalla;
+  - proyectos en scroll horizontal;
+  - cursor personalizado, botones magnéticos y tarjetas con inclinación.
+- **Estilos**: `src/styles/lab.css`. Solo tema oscuro.
+- **Mejora progresiva**: sin JS o con `prefers-reduced-motion` es un documento estático completo. Three.js se carga cuando el navegador está libre, después del contenido.
+- **Lighthouse**: rendimiento ≥ 85 y el resto ≥ 95. La web clásica mantiene ≥ 95 en todo.
+
 ## Requisitos
 
 - Node 24 (ver `.nvmrc`; mínimo 22.23)
