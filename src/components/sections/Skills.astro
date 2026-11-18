@@ -15,41 +15,39 @@ const t = useTranslations(lang).skills;
     <SectionHeading id="skills" label={t.label} title={t.title} />
 
     <div class="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-      {
-        t.groups.map((group) => (
-          <div class="reveal">
-            <h3 class="border-b border-line pb-2 text-sm font-semibold">{group.name}</h3>
-            <ul class="mt-3 space-y-1.5 text-muted">
-              {group.items.map((item) => (
-                <li>{item}</li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
+      {t.groups.map((group) => (
+        <div class="reveal">
+          <h3 class="border-b border-line pb-2 text-sm font-semibold">{group.name}</h3>
+          <ul class="mt-3 space-y-1.5 text-muted">
+            {group.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
 
     <div class="mt-16 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
       <div class="reveal lg:col-span-2">
         <h3 class="border-b border-line pb-2 text-sm font-semibold">{t.educationTitle}</h3>
         <ul class="mt-3 space-y-3">
-          {
-            t.education.map((e) => (
-              <li>
-                <p>{e.title}</p>
-                <p class="text-sm text-muted">
-                  {e.org}
-                  {e.year ? ` · ${e.year}` : <Todo note="Año de finalización" />}
-                </p>
-              </li>
-            ))
-          }
+          {t.education.map((e) => (
+            <li>
+              <p>{e.title}</p>
+              <p class="text-sm text-muted">
+                {e.org}
+                {e.year ? ` · ${e.year}` : <Todo note="Año de finalización" />}
+              </p>
+            </li>
+          ))}
         </ul>
       </div>
       <div class="reveal">
         <h3 class="border-b border-line pb-2 text-sm font-semibold">{t.languagesTitle}</h3>
         <ul class="mt-3 space-y-1.5 text-muted">
-          {t.languages.map((l) => <li>{l}</li>)}
+          {t.languages.map((l) => (
+            <li>{l}</li>
+          ))}
         </ul>
       </div>
     </div>

@@ -8,7 +8,9 @@ const { id, label, title } = Astro.props;
 ---
 
 <div class="mb-10 flex flex-col gap-2 sm:mb-12">
-  <p class="font-mono text-xs tracking-wide text-accent" aria-hidden="true">{label}</p>
+  <p class="font-mono text-xs tracking-wide text-accent" aria-hidden="true">
+    {label}
+  </p>
   <h2 id={`${id}-title`} class="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
     {title}
   </h2>

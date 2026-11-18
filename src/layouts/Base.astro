@@ -26,7 +26,10 @@ const site = Astro.site ?? new URL('https://juandamt.github.io');
 const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${t.meta.role}`;
 const desc = description ?? t.meta.description;
 const canonical = new URL(localizePath(path, lang), site).href;
-const alternates = locales.map((l) => ({ lang: l, href: new URL(localizePath(path, l), site).href }));
+const alternates = locales.map((l) => ({
+  lang: l,
+  href: new URL(localizePath(path, l), site).href,
+}));
 const xDefault = new URL(localizePath(path, defaultLang), site).href;
 const og = new URL(ogImage ?? `/og/home-${lang}.png`, site).href;
 
@@ -36,7 +39,11 @@ const jsonLd = {
   name: profile.name,
   jobTitle: t.meta.role,
   url: new URL(localizePath('/', lang), site).href,
-  address: { '@type': 'PostalAddress', addressLocality: profile.locality, addressCountry: profile.country },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: profile.locality,
+    addressCountry: profile.country,
+  },
   sameAs: [profile.links.linkedin, profile.links.github],
   knowsLanguage: ['es', 'en'],
 };
@@ -51,7 +58,9 @@ const jsonLd = {
     <meta name="description" content={desc} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
-    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    {alternates.map((a) => (
+      <link rel="alternate" hreflang={a.lang} href={a.href} />
+    ))}
     <link rel="alternate" hreflang="x-default" href={xDefault} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -73,21 +82,25 @@ const jsonLd = {
 
     <!-- Set the theme before first paint to avoid a flash. -->
     <script is:inline>
-      (function () {
-        var stored = null;
+      (() => {
+        let stored;
         try {
           stored = localStorage.getItem('theme');
-        } catch (e) {
+        } catch {
           stored = null;
         }
-        var dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        const dark = stored
+          ? stored === 'dark'
+          : matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.classList.add(dark ? 'dark' : 'light');
       })();
     </script>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class="flex min-h-dvh flex-col">
-    <a href="#main" class="skip-link">{t.a11y.skip}</a>
+    <a href="#main" class="skip-link">
+      {t.a11y.skip}
+    </a>
     <Header lang={lang} path={path} />
     <main id="main" class="flex-1" tabindex="-1">
       <slot />

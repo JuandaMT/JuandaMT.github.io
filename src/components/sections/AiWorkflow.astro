@@ -17,39 +17,39 @@ const last = t.steps.length - 1;
   <div class="container-page">
     <SectionHeading id="ai" label={t.label} title={t.title} />
     <p class="-mt-4 max-w-2xl text-lg leading-relaxed text-pretty text-muted">{t.intro}</p>
-    <div class="mt-4"><Todo note="Confirmar pasos y orden del flujo agéntico" /></div>
+    <div class="mt-4">
+      <Todo note="Confirmar pasos y orden del flujo agéntico" />
+    </div>
 
     <!-- Pipeline: vertical on mobile, horizontal from lg. -->
     <ol class="relative mt-14 grid gap-0 lg:grid-cols-5 lg:gap-6">
-      {
-        t.steps.map((step, i) => (
-          <li class="reveal relative flex gap-5 pb-10 lg:flex-col lg:gap-0 lg:pb-0">
-            {/* connector */}
-            {i < last && (
-              <span
-                aria-hidden="true"
-                class="absolute top-6 bottom-0 left-[11px] w-px bg-line lg:top-[11px] lg:right-[-1.5rem] lg:bottom-auto lg:left-6 lg:h-px lg:w-auto"
-              />
-            )}
+      {t.steps.map((step, i) => (
+        <li class="reveal relative flex gap-5 pb-10 lg:flex-col lg:gap-0 lg:pb-0">
+          {/* connector */}
+          {i < last && (
             <span
               aria-hidden="true"
-              class:list={[
-                'relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-[0.65rem]',
-                i === last
-                  ? 'border-accent bg-accent text-accent-ink'
-                  : 'border-line bg-bg text-muted',
-              ]}
-            >
-              {i + 1}
-            </span>
-            <div class="lg:mt-5">
-              <p class="font-mono text-[0.7rem] tracking-wide text-accent">{step.tag}</p>
-              <h3 class="mt-1 text-lg font-semibold tracking-tight">{step.name}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-pretty text-muted">{step.text}</p>
-            </div>
-          </li>
-        ))
-      }
+              class="absolute top-6 bottom-0 left-[11px] w-px bg-line lg:top-[11px] lg:right-[-1.5rem] lg:bottom-auto lg:left-6 lg:h-px lg:w-auto"
+            />
+          )}
+          <span
+            aria-hidden="true"
+            class:list={[
+              'relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-[0.65rem]',
+              i === last
+                ? 'border-accent bg-accent text-accent-ink'
+                : 'border-line bg-bg text-muted',
+            ]}
+          >
+            {i + 1}
+          </span>
+          <div class="lg:mt-5">
+            <p class="font-mono text-[0.7rem] tracking-wide text-accent">{step.tag}</p>
+            <h3 class="mt-1 text-lg font-semibold tracking-tight">{step.name}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-pretty text-muted">{step.text}</p>
+          </div>
+        </li>
+      ))}
     </ol>
 
     <div class="mt-14 grid gap-5 md:grid-cols-2">

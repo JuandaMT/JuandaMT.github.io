@@ -32,7 +32,8 @@ const en = {
     ctaContact: 'Get in touch',
     traceLabel: 'How every change ships',
     trace: ['spec', 'implement', 'review', 'verify'],
-    status: 'Open to full stack, frontend or backend roles at product companies · remote or hybrid in Valencia',
+    status:
+      'Open to full stack, frontend or backend roles at product companies · remote or hybrid in Valencia',
   },
   about: {
     label: '01 / context',
@@ -160,12 +161,7 @@ const en = {
       },
       {
         name: 'AI',
-        items: [
-          'Claude Code',
-          'Subagents, hooks & plugins',
-          'Spec-driven development',
-          'ComfyUI',
-        ],
+        items: ['Claude Code', 'Subagents, hooks & plugins', 'Spec-driven development', 'ComfyUI'],
       },
     ],
     educationTitle: 'Education',

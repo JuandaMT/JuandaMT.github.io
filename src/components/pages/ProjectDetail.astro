@@ -41,82 +41,71 @@ const external = [
     </a>
 
     <header class="mt-10 max-w-3xl">
-      {
-        data.status && (
-          <p class="font-mono text-xs tracking-wide text-accent">{t.status[data.status]}</p>
-        )
-      }
+      {data.status && (
+        <p class="font-mono text-xs tracking-wide text-accent">{t.status[data.status]}</p>
+      )}
       <h1 class="mt-3 text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
         {data.title}
       </h1>
       <p class="mt-4 text-xl leading-relaxed text-pretty text-muted">{data.tagline}</p>
     </header>
 
-    {
-      data.todos.length > 0 && (
-        <div class="mt-6 flex max-w-3xl flex-wrap gap-1.5">
-          {data.todos.map((note) => (
-            <Todo note={note} />
-          ))}
-        </div>
-      )
-    }
+    {data.todos.length > 0 && (
+      <div class="mt-6 flex max-w-3xl flex-wrap gap-1.5">
+        {data.todos.map((note) => (
+          <Todo note={note} />
+        ))}
+      </div>
+    )}
 
-    <dl
-      class="mt-12 grid gap-8 border-y border-line py-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.6fr_1fr]"
-    >
-      {
-        data.problem && (
+    <dl class="mt-12 grid gap-8 border-y border-line py-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.6fr_1fr]">
+      {data.problem && (
+        <div>
+          <dt class="font-mono text-xs text-muted">{t.problem}</dt>
+          <dd class="mt-2 leading-relaxed">{data.problem}</dd>
+        </div>
+      )}
+      {data.contribution.length > 0 && (
+        <div>
+          <dt class="font-mono text-xs text-muted">{t.contribution}</dt>
+          <dd class="mt-2">
+            <ul class="space-y-2 leading-relaxed">
+              {data.contribution.map((c) => (
+                <li class="relative pl-4 before:absolute before:top-[0.75em] before:left-0 before:h-px before:w-2 before:bg-accent">
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      )}
+      <div class="space-y-8">
+        {data.stack.length > 0 && (
           <div>
-            <dt class="font-mono text-xs text-muted">{t.problem}</dt>
-            <dd class="mt-2 leading-relaxed">{data.problem}</dd>
-          </div>
-        )
-      }
-      {
-        data.contribution.length > 0 && (
-          <div>
-            <dt class="font-mono text-xs text-muted">{t.contribution}</dt>
-            <dd class="mt-2">
-              <ul class="space-y-2 leading-relaxed">
-                {data.contribution.map((c) => (
-                  <li class="relative pl-4 before:absolute before:top-[0.75em] before:left-0 before:h-px before:w-2 before:bg-accent">
-                    {c}
-                  </li>
-                ))}
-              </ul>
+            <dt class="font-mono text-xs text-muted">{t.stack}</dt>
+            <dd class="mt-3">
+              <Chips items={data.stack} />
             </dd>
           </div>
-        )
-      }
-      <div class="space-y-8">
-        {
-          data.stack.length > 0 && (
-            <div>
-              <dt class="font-mono text-xs text-muted">{t.stack}</dt>
-              <dd class="mt-3">
-                <Chips items={data.stack} />
-              </dd>
-            </div>
-          )
-        }
-        {
-          (external.length > 0 || data.linkNote) && (
-            <div>
-              <dt class="font-mono text-xs text-muted">{t.links}</dt>
-              <dd class="mt-2 flex flex-col gap-1.5 text-sm font-medium">
-                {external.map((l) => (
-                  <ExtLink href={l.href} lang={lang} class="link">
-                    {l.label}<span aria-hidden="true" class="ml-1">↗</span>
-                  </ExtLink>
-                ))}
-                {data.linkNote && (
-                  <span class="font-mono text-xs font-normal text-muted">{data.linkNote}</span>
-                )}
-              </dd>
-            </div>
-          )
-        }
+        )}
+        {(external.length > 0 || data.linkNote) && (
+          <div>
+            <dt class="font-mono text-xs text-muted">{t.links}</dt>
+            <dd class="mt-2 flex flex-col gap-1.5 text-sm font-medium">
+              {external.map((l) => (
+                <ExtLink href={l.href} lang={lang} class="link">
+                  {l.label}
+                  <span aria-hidden="true" class="ml-1">
+                    ↗
+                  </span>
+                </ExtLink>
+              ))}
+              {data.linkNote && (
+                <span class="font-mono text-xs font-normal text-muted">{data.linkNote}</span>
+              )}
+            </dd>
+          </div>
+        )}
       </div>
     </dl>
 

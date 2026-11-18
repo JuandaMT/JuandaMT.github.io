@@ -7,14 +7,12 @@ interface Props {
 const { items, label, class: className } = Astro.props;
 ---
 
-{
-  items.length > 0 && (
-    <ul class:list={['flex flex-wrap gap-1.5', className]} aria-label={label}>
-      {items.map((item) => (
-        <li class="rounded-md border border-line px-2 py-0.5 font-mono text-[0.7rem] leading-5 text-muted">
-          {item}
-        </li>
-      ))}
-    </ul>
-  )
-}
+{items.length > 0 && (
+  <ul class:list={['flex flex-wrap gap-1.5', className]} aria-label={label}>
+    {items.map((item) => (
+      <li class="rounded-md border border-line px-2 py-0.5 font-mono text-[0.7rem] leading-5 text-muted">
+        {item}
+      </li>
+    ))}
+  </ul>
+)}

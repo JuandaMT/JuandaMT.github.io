@@ -24,14 +24,16 @@ const es: UI = {
   },
   hero: {
     eyebrow: 'Desarrollador full stack · Valencia',
-    title: 'Construyo productos SaaS de principio a fin y los entrego con agentes de IA bajo revisión.',
+    title:
+      'Construyo productos SaaS de principio a fin y los entrego con agentes de IA bajo revisión.',
     lead: 'Tres años en producción como desarrollador principal de una plataforma SaaS que construí desde cero: React y TypeScript en el frontend, una API en Node.js con Domain-Driven Design en el backend, y pagos, autenticación y tiempo real entre medias.',
     ctaProjects: 'Ver proyectos',
     ctaCv: 'Descargar CV',
     ctaContact: 'Contactar',
     traceLabel: 'Cómo se entrega cada cambio',
     trace: ['spec', 'implementar', 'revisar', 'verificar'],
-    status: 'Abierto a puestos full stack, frontend o backend en empresas de producto · remoto o híbrido en Valencia',
+    status:
+      'Abierto a puestos full stack, frontend o backend en empresas de producto · remoto o híbrido en Valencia',
   },
   about: {
     label: '01 / contexto',
@@ -164,12 +166,7 @@ const es: UI = {
       },
       {
         name: 'IA',
-        items: [
-          'Claude Code',
-          'Subagentes, hooks y plugins',
-          'Spec-driven development',
-          'ComfyUI',
-        ],
+        items: ['Claude Code', 'Subagentes, hooks y plugins', 'Spec-driven development', 'ComfyUI'],
       },
     ],
     educationTitle: 'Formación',

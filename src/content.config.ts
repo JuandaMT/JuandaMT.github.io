@@ -17,7 +17,9 @@ const projects = defineCollection({
     /** What I did, as short bullet points. */
     contribution: z.array(z.string()).default([]),
     stack: z.array(z.string()).default([]),
-    status: z.enum(['production', 'in-development', 'user-testing', 'published', 'prototype']).optional(),
+    status: z
+      .enum(['production', 'in-development', 'user-testing', 'published', 'prototype'])
+      .optional(),
     links: z
       .object({
         repo: z.url().optional(),

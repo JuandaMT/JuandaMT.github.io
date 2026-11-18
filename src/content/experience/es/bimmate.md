@@ -12,7 +12,21 @@ highlights:
   - Lancé la formación con vídeo y seguimiento de progreso, y una funcionalidad de gamificación con MapBox.
   - Automaticé la facturación de principio a fin (PDF → Google Drive → email) con cron jobs programados.
   - Garanticé la consistencia de datos con transacciones atómicas en Firestore y la cubrí con tests de integración en Jest contra el emulador de Firestore.
-stack: [React 18, TypeScript, Node.js, Express, Firestore, Stripe, Socket.io, Tailwind, Material UI, Zustand, Jest, Docker]
+stack:
+  [
+    React 18,
+    TypeScript,
+    Node.js,
+    Express,
+    Firestore,
+    Stripe,
+    Socket.io,
+    Tailwind,
+    Material UI,
+    Zustand,
+    Jest,
+    Docker,
+  ]
 order: 1
 todos:
   - 'Mes de inicio en BiMMate'

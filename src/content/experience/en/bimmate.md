@@ -12,7 +12,21 @@ highlights:
   - Shipped video training with progress tracking and a gamification feature built on MapBox.
   - Automated invoicing end to end (PDF → Google Drive → email) with scheduled cron jobs.
   - Kept data consistent with Firestore atomic transactions and covered it with Jest integration tests against the Firestore emulator.
-stack: [React 18, TypeScript, Node.js, Express, Firestore, Stripe, Socket.io, Tailwind, Material UI, Zustand, Jest, Docker]
+stack:
+  [
+    React 18,
+    TypeScript,
+    Node.js,
+    Express,
+    Firestore,
+    Stripe,
+    Socket.io,
+    Tailwind,
+    Material UI,
+    Zustand,
+    Jest,
+    Docker,
+  ]
 order: 1
 todos:
   - 'Mes de inicio en BiMMate'

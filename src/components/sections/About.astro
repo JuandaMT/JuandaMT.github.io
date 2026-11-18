@@ -15,7 +15,9 @@ const t = useTranslations(lang).about;
     <SectionHeading id="about" label={t.label} title={t.title} />
     <div class="reveal space-y-5 text-lg leading-relaxed text-pretty">
       <Todo note="Revisar el tono del Sobre mí (borrador a partir del brief)" />
-      {t.paragraphs.map((p, i) => <p class={i === 0 ? '' : 'text-muted'}>{p}</p>)}
+      {t.paragraphs.map((p, i) => (
+        <p class={i === 0 ? '' : 'text-muted'}>{p}</p>
+      ))}
     </div>
   </div>
 </section>
