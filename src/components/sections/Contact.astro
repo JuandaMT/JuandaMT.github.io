@@ -1,0 +1,92 @@
+---
+import SectionHeading from '../SectionHeading.astro';
+import ExtLink from '../ExtLink.astro';
+import Todo from '../Todo.astro';
+import { type Lang, useTranslations } from '../../i18n/utils';
+import { profile } from '../../data/profile';
+import { publicFileExists } from '../../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang).contact;
+
+const rows = [
+  { label: t.linkedin, value: 'linkedin.com/in/juandamt', href: profile.links.linkedin },
+  { label: t.github, value: 'github.com/JuandaMT', href: profile.links.github },
+];
+const cvs = [
+  { label: t.cvEn, href: profile.cv.en, lang: 'en' },
+  { label: t.cvEs, href: profile.cv.es, lang: 'es' },
+].filter((c) => publicFileExists(c.href));
+---
+
+<section id="contact" aria-labelledby="contact-title" class="border-t border-line py-20 sm:py-28">
+  <div class="container-page grid gap-10 md:grid-cols-[1fr_1.4fr] md:gap-16">
+    <div>
+      <SectionHeading id="contact" label={t.label} title={t.title} />
+      <p class="-mt-4 max-w-md text-lg leading-relaxed text-pretty text-muted">{t.text}</p>
+    </div>
+
+    <div class="reveal">
+      <ul class="divide-y divide-line border-y border-line">
+        {
+          profile.email ? (
+            <li>
+              <a
+                href={`mailto:${profile.email}`}
+                class="group flex items-baseline justify-between gap-4 py-5"
+              >
+                <span class="font-mono text-xs text-muted">{t.email}</span>
+                <span class="text-lg font-medium break-all group-hover:text-accent sm:text-xl">
+                  {profile.email}
+                </span>
+              </a>
+            </li>
+          ) : (
+            <li class="py-5">
+              <Todo note="Email público en src/data/profile.ts" />
+            </li>
+          )
+        }
+        {
+          rows.map((r) => (
+            <li>
+              <ExtLink
+                href={r.href}
+                lang={lang}
+                class="group flex items-baseline justify-between gap-4 py-5"
+              >
+                <span class="font-mono text-xs text-muted">{r.label}</span>
+                <span class="text-lg font-medium group-hover:text-accent sm:text-xl">
+                  {r.value} <span aria-hidden="true">↗</span>
+                </span>
+              </ExtLink>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <span class="font-mono text-xs text-muted">{t.cvTitle}</span>
+        {
+          cvs.length > 0 ? (
+            cvs.map((c) => (
+              <a
+                href={c.href}
+                download
+                hreflang={c.lang}
+                class="inline-flex h-10 items-center rounded-full border border-line bg-surface px-4 text-sm font-medium transition-colors hover:border-ink/40"
+              >
+                {c.label}
+              </a>
+            ))
+          ) : (
+            <Todo note="CV en inglés y en español (public/cv/)" />
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>

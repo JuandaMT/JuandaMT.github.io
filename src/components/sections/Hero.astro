@@ -1,0 +1,93 @@
+---
+import Todo from '../Todo.astro';
+import { type Lang, useTranslations } from '../../i18n/utils';
+import { profile } from '../../data/profile';
+import { publicFileExists } from '../../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang).hero;
+const cv = profile.cv[lang];
+const hasCv = publicFileExists(cv);
+---
+
+<section class="relative isolate overflow-hidden" aria-labelledby="hero-title">
+  <div class="grid-paper absolute inset-0 -z-10 opacity-60" aria-hidden="true"></div>
+  <div class="container-page pt-16 pb-20 sm:pt-28 sm:pb-28">
+    <p class="font-mono text-xs tracking-wide text-muted">{t.eyebrow}</p>
+    <h1
+      id="hero-title"
+      class="mt-5 max-w-4xl text-[2.5rem] leading-[1.05] font-semibold tracking-[-0.035em] text-balance sm:text-6xl lg:text-[4.25rem]"
+    >
+      {t.title}
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-muted">{t.lead}</p>
+
+    <div class="mt-9 flex flex-wrap items-center gap-3">
+      <a
+        href="#projects"
+        class="inline-flex h-11 items-center rounded-full bg-ink px-5 text-sm font-medium text-bg transition-transform hover:-translate-y-px"
+      >
+        {t.ctaProjects}
+      </a>
+      {
+        hasCv ? (
+          <a
+            href={cv}
+            download
+            class="inline-flex h-11 items-center gap-2 rounded-full border border-line bg-surface px-5 text-sm font-medium transition-colors hover:border-ink/40"
+          >
+            {t.ctaCv}
+            <span class="font-mono text-xs text-muted">PDF</span>
+          </a>
+        ) : (
+          <Todo note="CV en PDF (public/cv/)" />
+        )
+      }
+      <a
+        href="#contact"
+        class="inline-flex h-11 items-center px-3 text-sm font-medium text-muted transition-colors hover:text-ink"
+      >
+        {t.ctaContact} <span aria-hidden="true" class="ml-1">→</span>
+      </a>
+    </div>
+
+    <ol
+      aria-label={t.traceLabel}
+      class="mt-14 flex flex-wrap items-center gap-x-2 gap-y-2 font-mono text-xs text-muted"
+    >
+      {
+        t.trace.map((step, i) => (
+          <li class="trace-step flex items-center gap-2" style={`--i:${i}`}>
+            {i > 0 && (
+              <span aria-hidden="true" class="text-line">
+                ──
+              </span>
+            )}
+            <span class="flex items-center gap-1.5 rounded-full border border-line bg-surface/80 px-2.5 py-1">
+              <svg viewBox="0 0 12 12" class="size-3 text-accent" aria-hidden="true">
+                <path
+                  class="check"
+                  d="M2.5 6.5l2.2 2L9.5 3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              {step}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="mt-6 flex max-w-2xl items-start gap-2.5 text-sm text-muted">
+      <span class="mt-1.5 size-2 shrink-0 rounded-full bg-accent" aria-hidden="true"></span>
+      {t.status}
+    </p>
+  </div>
+</section>

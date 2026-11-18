@@ -1,0 +1,68 @@
+---
+import SectionHeading from '../SectionHeading.astro';
+import ExtLink from '../ExtLink.astro';
+import Todo from '../Todo.astro';
+import { type Lang, useTranslations } from '../../i18n/utils';
+import { profile } from '../../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang).ai;
+const last = t.steps.length - 1;
+---
+
+<section id="ai" aria-labelledby="ai-title" class="border-t border-line bg-surface py-20 sm:py-28">
+  <div class="container-page">
+    <SectionHeading id="ai" label={t.label} title={t.title} />
+    <p class="-mt-4 max-w-2xl text-lg leading-relaxed text-pretty text-muted">{t.intro}</p>
+    <div class="mt-4"><Todo note="Confirmar pasos y orden del flujo agéntico" /></div>
+
+    <!-- Pipeline: vertical on mobile, horizontal from lg. -->
+    <ol class="relative mt-14 grid gap-0 lg:grid-cols-5 lg:gap-6">
+      {
+        t.steps.map((step, i) => (
+          <li class="reveal relative flex gap-5 pb-10 lg:flex-col lg:gap-0 lg:pb-0">
+            {/* connector */}
+            {i < last && (
+              <span
+                aria-hidden="true"
+                class="absolute top-6 bottom-0 left-[11px] w-px bg-line lg:top-[11px] lg:right-[-1.5rem] lg:bottom-auto lg:left-6 lg:h-px lg:w-auto"
+              />
+            )}
+            <span
+              aria-hidden="true"
+              class:list={[
+                'relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-[0.65rem]',
+                i === last
+                  ? 'border-accent bg-accent text-accent-ink'
+                  : 'border-line bg-bg text-muted',
+              ]}
+            >
+              {i + 1}
+            </span>
+            <div class="lg:mt-5">
+              <p class="font-mono text-[0.7rem] tracking-wide text-accent">{step.tag}</p>
+              <h3 class="mt-1 text-lg font-semibold tracking-tight">{step.name}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-pretty text-muted">{step.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-14 grid gap-5 md:grid-cols-2">
+      <div class="reveal rounded-2xl border border-line p-6">
+        <p class="leading-relaxed">{t.pluginNote}</p>
+        <Todo note="¿El plugin es público? Si hay enlace, añadirlo" />
+      </div>
+      <div class="reveal flex flex-col justify-between gap-4 rounded-2xl border border-line p-6">
+        <p class="leading-relaxed">{t.notebook}</p>
+        <ExtLink href={profile.links.notebook} lang={lang} class="link text-sm font-medium">
+          {t.notebookCta} <span aria-hidden="true">↗</span>
+        </ExtLink>
+      </div>
+    </div>
+  </div>
+</section>

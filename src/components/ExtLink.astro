@@ -1,0 +1,14 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { Lang } from '../i18n/utils';
+import { useTranslations } from '../i18n/utils';
+
+type Props = HTMLAttributes<'a'> & { href: string; lang: Lang };
+const { href, lang, class: className, ...rest } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<a href={href} target="_blank" rel="noopener noreferrer" class={className} {...rest}>
+  <slot />
+  <span class="sr-only"> {t.a11y.external}</span>
+</a>

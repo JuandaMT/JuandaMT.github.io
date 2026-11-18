@@ -1,0 +1,21 @@
+---
+import SectionHeading from '../SectionHeading.astro';
+import Todo from '../Todo.astro';
+import { type Lang, useTranslations } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang).about;
+---
+
+<section id="about" aria-labelledby="about-title" class="border-t border-line py-20 sm:py-28">
+  <div class="container-page grid gap-6 md:grid-cols-[1fr_2fr] md:gap-12">
+    <SectionHeading id="about" label={t.label} title={t.title} />
+    <div class="reveal space-y-5 text-lg leading-relaxed text-pretty">
+      <Todo note="Revisar el tono del Sobre mí (borrador a partir del brief)" />
+      {t.paragraphs.map((p, i) => <p class={i === 0 ? '' : 'text-muted'}>{p}</p>)}
+    </div>
+  </div>
+</section>
