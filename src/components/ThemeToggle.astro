@@ -1,0 +1,83 @@
+---
+interface Props {
+  label: string;
+}
+const { label } = Astro.props;
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  aria-label={label}
+  aria-pressed="false"
+  class="inline-flex size-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-accent-soft hover:text-ink"
+>
+  <!-- Sun (shown in dark mode) -->
+  <svg
+    class="hidden size-[18px] dark:block"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path
+      d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+    ></path>
+  </svg>
+  <!-- Moon (shown in light mode) -->
+  <svg
+    class="block size-[18px] dark:hidden"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"></path>
+  </svg>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const media = matchMedia('(prefers-color-scheme: dark)');
+
+  function apply(dark: boolean) {
+    root.classList.toggle('dark', dark);
+    root.classList.toggle('light', !dark);
+    document
+      .querySelectorAll('[data-theme-toggle]')
+      .forEach((b) => b.setAttribute('aria-pressed', String(dark)));
+  }
+
+  function stored(): string | null {
+    try {
+      return localStorage.getItem('theme');
+    } catch {
+      return null;
+    }
+  }
+
+  apply(root.classList.contains('dark'));
+
+  document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const dark = !root.classList.contains('dark');
+      apply(dark);
+      try {
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+      } catch {
+        /* storage unavailable: the choice lasts for this page only */
+      }
+    });
+  });
+
+  // Follow the system while the visitor hasn't chosen explicitly.
+  media.addEventListener('change', (e) => {
+    if (!stored()) apply(e.matches);
+  });
+</script>

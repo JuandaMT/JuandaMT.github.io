@@ -1,0 +1,59 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import LangSwitch from './LangSwitch.astro';
+import { type Lang, localizePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const t = useTranslations(lang);
+const home = localizePath('/', lang);
+const items = [
+  { href: `${home}#experience`, label: t.nav.experience },
+  { href: `${home}#projects`, label: t.nav.projects },
+  { href: `${home}#ai`, label: t.nav.ai },
+  { href: `${home}#contact`, label: t.nav.contact },
+];
+---
+
+<header
+  class="sticky top-0 z-40 border-b border-line/70 bg-bg/85 backdrop-blur supports-[backdrop-filter]:bg-bg/70"
+>
+  <div class="container-page flex h-14 items-center justify-between gap-4">
+    <a
+      href={home}
+      class="group flex items-center gap-2 font-medium tracking-tight"
+      aria-label={t.a11y.home}
+    >
+      <span aria-hidden="true" class="flex items-center gap-[3px]">
+        <span class="size-1.5 rounded-full bg-accent"></span>
+        <span class="size-1.5 rounded-full bg-ink/40 transition-colors group-hover:bg-accent"></span>
+        <span class="size-1.5 rounded-full bg-ink/20 transition-colors delay-75 group-hover:bg-accent"
+        ></span>
+      </span>
+      <span>Juan David Mayorga</span>
+    </a>
+
+    <div class="flex items-center gap-1 sm:gap-3">
+      <nav aria-label={t.a11y.mainNav} class="hidden md:block">
+        <ul class="flex items-center gap-5 text-sm text-muted">
+          {
+            items.map((item) => (
+              <li>
+                <a href={item.href} class="transition-colors hover:text-ink">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <span class="hidden h-4 w-px bg-line md:block" aria-hidden="true"></span>
+      <LangSwitch lang={lang} path={path} />
+      <ThemeToggle label={t.a11y.themeToggle} />
+    </div>
+  </div>
+</header>

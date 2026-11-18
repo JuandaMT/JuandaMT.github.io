@@ -1,0 +1,23 @@
+---
+import { type Lang, localizePath, otherLang, useTranslations } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  path: string;
+}
+
+const { lang, path } = Astro.props;
+const target = otherLang(lang);
+const t = useTranslations(lang);
+---
+
+<a
+  href={localizePath(path, target)}
+  hreflang={target}
+  lang={target}
+  aria-label={t.a11y.switchLang}
+  data-lang-switch
+  class="inline-flex h-9 items-center rounded-full px-3 font-mono text-xs tracking-wider text-muted uppercase transition-colors hover:bg-accent-soft hover:text-ink"
+>
+  {target}
+</a>

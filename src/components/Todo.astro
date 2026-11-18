@@ -1,0 +1,21 @@
+---
+/**
+ * Visible placeholder for missing data. Shown in `pnpm dev` (and in builds with
+ * PUBLIC_SHOW_TODOS=true); never rendered in the production build.
+ * Every TODO is also collected into TODO.md by `pnpm todos`.
+ */
+interface Props {
+  note: string;
+}
+const { note } = Astro.props;
+const show = import.meta.env.DEV || import.meta.env.PUBLIC_SHOW_TODOS === 'true';
+---
+
+{
+  show && (
+    <span class="todo" data-todo>
+      <strong>TODO</strong>
+      <span>{note}</span>
+    </span>
+  )
+}
