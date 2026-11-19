@@ -28,8 +28,8 @@
   --accent: #b8391f;
   --accent-soft: rgb(184 57 31 / 0.1);
   --accent-ink: #ffffff;
-  --grid-minor: rgb(28 53 83 / 0.05);
-  --grid-major: rgb(28 53 83 / 0.1);
+  --grid-minor: rgb(28 53 83 / 0.035);
+  --grid-major: rgb(28 53 83 / 0.075);
   --sheet: rgb(247 245 238 / 0.9);
   --stamp: #b8391f;
   color-scheme: light;
@@ -634,8 +634,14 @@
 /* ---------- Experience: dimensioned entries ---------- */
 .bp-jobs {
   display: grid;
-  gap: 56px;
-  margin-top: 40px;
+  gap: 28px;
+  margin-top: 36px;
+}
+/* Long text sits on a sheet, not straight on the grid. */
+.bp-job {
+  padding: 22px 28px 30px;
+  border: 1px solid var(--line);
+  background: var(--sheet);
 }
 .bp-dim {
   display: flex;
@@ -717,7 +723,13 @@
 
 /* ---------- Materials schedule ---------- */
 .bp-materials {
-  margin-top: 12px;
+  margin-top: 28px;
+  padding: 0 28px;
+  border: 1px solid var(--line);
+  background: var(--sheet);
+}
+.bp-material:last-child {
+  border-bottom: 0;
 }
 .bp-material {
   display: grid;
@@ -854,5 +866,11 @@
   }
   .bp-material {
     grid-template-columns: 1fr;
+  }
+  .bp-job {
+    padding: 18px 18px 24px;
+  }
+  .bp-materials {
+    padding: 0 18px;
   }
 }

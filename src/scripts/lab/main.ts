@@ -30,6 +30,11 @@ function paperToggle() {
     const paper = root.dataset.paper === 'calco' ? 'calco' : 'cyan';
     name.textContent = button.dataset[paper] ?? paper;
     button.setAttribute('aria-pressed', String(paper === 'calco'));
+    // Browser UI colour follows the paper.
+    const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((m) => m.setAttribute('content', bg));
   };
   render();
   button.addEventListener('click', () => {
