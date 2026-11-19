@@ -1,8 +1,9 @@
 /* Interactive portfolio (/lab/), "Plano de obra": a set of technical sheets.
    Two papers: blueprint (cyan, default) and tracing paper (calco). Loaded after global.css. */
 
-.lab,
-.lab[data-paper='cyan'] {
+/* Specificity (0,4,0) on purpose: global.css follows the system dark mode with
+   `:root:not(.light):not(.dark)` (0,3,0), and the papers must win over it. */
+:root.lab.lab[data-paper] {
   --bg: #123a66;
   --surface: #10345c;
   --ink: #eaf2ff;
@@ -18,7 +19,7 @@
   --stamp: #ff7a5c;
   color-scheme: dark;
 }
-.lab[data-paper='calco'] {
+:root.lab.lab[data-paper='calco'] {
   --bg: #f2efe6;
   --surface: #f7f5ee;
   --ink: #1c3553;

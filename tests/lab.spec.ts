@@ -50,3 +50,13 @@ test('the paper toggle switches to tracing paper and is remembered', async ({ pa
   await page.reload();
   await expect(html).toHaveAttribute('data-paper', 'calco');
 });
+
+test('the papers keep their colours when the system is in dark mode', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  const bg = () =>
+    page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+  await page.goto('/lab/');
+  expect(await bg()).toBe('#123a66');
+  await page.locator('[data-paper-toggle]').click();
+  expect(await bg()).toBe('#f2efe6');
+});
