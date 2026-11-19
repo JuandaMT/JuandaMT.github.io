@@ -12,7 +12,7 @@ const root = document.documentElement;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-paperToggle();
+themeColor();
 sizeSheets();
 window.addEventListener('resize', sizeSheets);
 if (!reduceMotion) motion();
@@ -21,32 +21,16 @@ void document.fonts.ready.then(() => {
   if (!reduceMotion && finePointer && plan) cursor(plan);
 });
 
-/** Blueprint ↔ tracing paper, remembered per visitor. */
-function paperToggle() {
-  const button = document.querySelector<HTMLButtonElement>('[data-paper-toggle]');
-  const name = button?.querySelector<HTMLElement>('[data-paper-name]');
-  if (!button || !name) return;
-  const render = () => {
-    const paper = root.dataset.paper === 'calco' ? 'calco' : 'cyan';
-    name.textContent = button.dataset[paper] ?? paper;
-    button.setAttribute('aria-pressed', String(paper === 'calco'));
-    // Browser UI colour follows the paper.
+/** Browser UI colour follows the chosen theme, not only the system one. */
+function themeColor() {
+  const sync = () => {
     const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
     document
       .querySelectorAll('meta[name="theme-color"]')
       .forEach((m) => m.setAttribute('content', bg));
   };
-  render();
-  button.addEventListener('click', () => {
-    const next = root.dataset.paper === 'calco' ? 'cyan' : 'calco';
-    root.dataset.paper = next;
-    try {
-      localStorage.setItem('lab-paper', next);
-    } catch {
-      /* storage unavailable: the choice lasts for this page view */
-    }
-    render();
-  });
+  sync();
+  new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['class'] });
 }
 
 function drawing(): Blueprint | null {

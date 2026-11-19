@@ -15,7 +15,7 @@ Web personal estática en inglés (`/`) y español (`/es/`). Hecha con **Astro 7
   - el ciclo agéntico queda fijado en pantalla y avanza un programa de obra (diagrama de Gantt) con el scroll;
   - cada proyecto es una lámina; al pasar el cursor, un agente repasa su contorno;
   - cursor de CAD con coordenadas que se engancha a los vértices del dibujo;
-  - dos papeles, cianotipo y calco, que se recuerdan por visitante (`localStorage`).
+  - modo claro (papel de calco) y oscuro (cianotipo), con el mismo botón y la misma preferencia que la web clásica; sin elección previa sigue al sistema.
 - **Estilos**: `src/styles/lab.css`. Tipografías Barlow Condensed e IBM Plex Mono (autoalojadas con Fontsource).
 - **Mejora progresiva**: sin JS es un documento completo; con `prefers-reduced-motion` el plano aparece ya dibujado y nada se fija ni se anima.
 - **Lighthouse**: ≥ 95 en todo, igual que la web clásica.

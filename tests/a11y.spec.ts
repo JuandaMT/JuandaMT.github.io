@@ -16,21 +16,15 @@ for (const scheme of ['light', 'dark'] as const) {
   }
 }
 
-// The lab ignores the system theme, so check each paper under both system schemes.
-for (const scheme of ['light', 'dark'] as const) {
-  for (const paper of ['cyan', 'calco'] as const) {
-    for (const path of ['/lab/', '/es/lab/']) {
-      test(`no WCAG A/AA violations on ${path} (${paper} paper, ${scheme} system)`, async ({
-        page,
-      }) => {
-        await page.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' });
-        await page.addInitScript((p) => localStorage.setItem('lab-paper', p), paper);
-        await page.goto(path);
-        const results = await new AxeBuilder({ page })
-          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-          .analyze();
-        expect(results.violations.map((v) => `${v.id}: ${v.nodes.length} × ${v.help}`)).toEqual([]);
-      });
-    }
+for (const theme of ['light', 'dark'] as const) {
+  for (const path of ['/lab/', '/es/lab/']) {
+    test(`no WCAG A/AA violations on ${path} (${theme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      await page.goto(path);
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.length} × ${v.help}`)).toEqual([]);
+    });
   }
 }

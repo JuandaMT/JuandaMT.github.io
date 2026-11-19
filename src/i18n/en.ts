@@ -214,8 +214,6 @@ const en = {
     sheet: 'Sheet',
     eyebrow: 'Elevation · Full stack developer · Valencia, Spain',
     lead: 'I build SaaS products end to end and ship them with AI agents under review. On this page, five agents draw the plan and leave it checked.',
-    paper: 'Paper',
-    papers: { cyan: 'blueprint', calco: 'tracing' },
     titleBlock: {
       label: 'Title block',
       project: 'Project',

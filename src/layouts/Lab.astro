@@ -7,6 +7,8 @@ import '../styles/global.css';
 import '../styles/lab.css';
 import SeoHead from '../components/SeoHead.astro';
 import LangSwitch from '../components/LangSwitch.astro';
+import ThemeScript from '../components/ThemeScript.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 import { type Lang, localizePath, useTranslations } from '../i18n/utils';
 
 interface Props {
@@ -20,24 +22,16 @@ const zonesY = ['1', '2', '3', '4', '5', '6'];
 ---
 
 <!doctype html>
-<html lang={lang} class="lab" data-paper="cyan">
+<html lang={lang} class="lab">
   <head>
     <SeoHead
       lang={lang}
       path={path}
       title={t.lab.title}
       description={t.lab.description}
-      themeColor={{ light: '#123a66', dark: '#123a66' }}
+      themeColor={{ light: '#f2efe6', dark: '#123a66' }}
     />
-    <script is:inline>
-      // Restore the chosen paper before first paint.
-      try {
-        const p = localStorage.getItem('lab-paper');
-        if (p === 'cyan' || p === 'calco') document.documentElement.dataset.paper = p;
-      } catch {
-        /* storage unavailable: keep the default paper */
-      }
-    </script>
+    <ThemeScript />
   </head>
   <body>
     <canvas class="bp-canvas" data-drawing aria-hidden="true"></canvas>
@@ -68,17 +62,7 @@ const zonesY = ['1', '2', '3', '4', '5', '6'];
           {t.lab.classic}
         </a>
         <LangSwitch lang={lang} path={path} />
-        <button
-          type="button"
-          class="bp-toggle"
-          data-paper-toggle
-          data-label={t.lab.paper}
-          data-cyan={t.lab.papers.cyan}
-          data-calco={t.lab.papers.calco}
-        >
-          <span class="bp-toggle-prefix">{t.lab.paper}:</span>
-          <span data-paper-name>{t.lab.papers.cyan}</span>
-        </button>
+        <ThemeToggle label={t.a11y.themeToggle} />
       </nav>
     </header>
 

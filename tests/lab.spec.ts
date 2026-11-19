@@ -40,23 +40,30 @@ test('with motion the loop is pinned and the agents finish the drawing', async (
   await expect(page.locator('[data-log]')).toContainText('100%');
 });
 
-test('the paper toggle switches to tracing paper and is remembered', async ({ page }) => {
-  await page.goto('/es/lab/');
-  const html = page.locator('html');
-  await expect(html).toHaveAttribute('data-paper', 'cyan');
-  await page.locator('[data-paper-toggle]').click();
-  await expect(html).toHaveAttribute('data-paper', 'calco');
-  await expect(page.locator('[data-paper-toggle]')).toContainText('calco');
-  await page.reload();
-  await expect(html).toHaveAttribute('data-paper', 'calco');
+const bg = (page: import('@playwright/test').Page) =>
+  page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+
+test('the lab follows the system theme until the visitor chooses', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/lab/');
+  expect(await bg(page)).toBe('#123a66');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/lab/');
+  expect(await bg(page)).toBe('#f2efe6');
 });
 
-test('the papers keep their colours when the system is in dark mode', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'dark' });
-  const bg = () =>
-    page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
-  await page.goto('/lab/');
-  expect(await bg()).toBe('#123a66');
-  await page.locator('[data-paper-toggle]').click();
-  expect(await bg()).toBe('#f2efe6');
+test('the theme toggle switches light/dark, is remembered and shared with the classic site', async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/es/lab/');
+  const html = page.locator('html');
+  await expect(html).toHaveClass(/light/);
+  await page.locator('[data-theme-toggle]').click();
+  await expect(html).toHaveClass(/dark/);
+  expect(await bg(page)).toBe('#123a66');
+  await page.reload();
+  await expect(html).toHaveClass(/dark/);
+  await page.goto('/es/');
+  await expect(html).toHaveClass(/dark/);
 });

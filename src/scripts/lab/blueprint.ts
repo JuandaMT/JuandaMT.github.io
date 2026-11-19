@@ -332,7 +332,7 @@ export function createBlueprint(canvas: HTMLCanvasElement, opts: BlueprintOption
     window.addEventListener('resize', redraw);
     new MutationObserver(redraw).observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-paper'],
+      attributeFilter: ['class'],
     });
   }
 

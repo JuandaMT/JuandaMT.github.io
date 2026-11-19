@@ -1,9 +1,10 @@
 /* Interactive portfolio (/lab/), "Plano de obra": a set of technical sheets.
-   Two papers: blueprint (cyan, default) and tracing paper (calco). Loaded after global.css. */
+   Same light/dark theme as the rest of the site (ThemeScript + ThemeToggle):
+   light = tracing paper, dark = blueprint. Loaded after global.css. */
 
-/* Specificity (0,4,0) on purpose: global.css follows the system dark mode with
-   `:root:not(.light):not(.dark)` (0,3,0), and the papers must win over it. */
-:root.lab.lab[data-paper] {
+/* Dark: blueprint. Selectors outrank global.css (`:root.dark`, and its no-JS
+   `:root:not(.light):not(.dark)` system fallback). */
+:root.lab.dark {
   --bg: #123a66;
   --surface: #10345c;
   --ink: #eaf2ff;
@@ -19,7 +20,9 @@
   --stamp: #ff7a5c;
   color-scheme: dark;
 }
-:root.lab.lab[data-paper='calco'] {
+/* Light: tracing paper. */
+:root.lab.light,
+:root.lab:not(.dark) {
   --bg: #f2efe6;
   --surface: #f7f5ee;
   --ink: #1c3553;
@@ -34,6 +37,26 @@
   --sheet: rgb(247 245 238 / 0.9);
   --stamp: #b8391f;
   color-scheme: light;
+}
+
+/* No JS: follow the system. */
+@media (prefers-color-scheme: dark) {
+  :root.lab:not(.light):not(.dark) {
+    --bg: #123a66;
+    --surface: #10345c;
+    --ink: #eaf2ff;
+    --muted: #a9bbd1;
+    --line: rgb(234 242 255 / 0.22);
+    --rule: rgb(234 242 255 / 0.85);
+    --accent: #ffb547;
+    --accent-soft: rgb(255 181 71 / 0.16);
+    --accent-ink: #0f2f55;
+    --grid-minor: rgb(255 255 255 / 0.045);
+    --grid-major: rgb(255 255 255 / 0.1);
+    --sheet: rgb(15 48 86 / 0.86);
+    --stamp: #ff7a5c;
+    color-scheme: dark;
+  }
 }
 
 .lab body {
@@ -163,19 +186,6 @@
 }
 .bp-navlink:hover {
   color: var(--ink);
-}
-.bp-toggle {
-  padding: 7px 10px;
-  border: 1px solid var(--rule);
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  color: inherit;
-  background: transparent;
-}
-.bp-toggle:hover {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .bp-main {
@@ -829,9 +839,6 @@
   }
   .bp-navlink {
     padding: 8px 6px;
-  }
-  .bp-toggle-prefix {
-    display: none;
   }
   .bp-section {
     padding: 96px 24px 0;

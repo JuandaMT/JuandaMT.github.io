@@ -1,0 +1,16 @@
+---
+/** Sets .dark or .light on <html> before first paint: the visitor's choice, else the system. */
+---
+
+<script is:inline>
+  (() => {
+    let stored;
+    try {
+      stored = localStorage.getItem('theme');
+    } catch {
+      stored = null;
+    }
+    const dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.add(dark ? 'dark' : 'light');
+  })();
+</script>

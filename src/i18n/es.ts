@@ -214,8 +214,6 @@ const es: UI = {
     sheet: 'Lámina',
     eyebrow: 'Alzado · Desarrollador full stack · Valencia',
     lead: 'Construyo productos SaaS de principio a fin y los entrego con agentes de IA bajo revisión. En esta página, cinco agentes dibujan el plano y lo dejan revisado.',
-    paper: 'Papel',
-    papers: { cyan: 'cianotipo', calco: 'calco' },
     titleBlock: {
       label: 'Cajetín',
       project: 'Proyecto',
