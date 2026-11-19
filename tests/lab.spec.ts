@@ -26,16 +26,27 @@ test('with reduced motion the lab is a static, complete document', async ({ page
   for (const step of await steps.all()) await expect(step).toBeVisible();
   await expect(page.locator('[data-card]').first()).toBeVisible();
   await expect(page.locator('#contact-title')).toBeVisible();
+  await expect(page.locator('[data-stamp]')).toBeVisible();
 });
 
-test('with motion the workflow is pinned and the WebGL scene starts', async ({
+test('with motion the loop is pinned and the agents finish the drawing', async ({
   page,
   isMobile,
 }) => {
   test.skip(isMobile, 'checked on desktop');
   await page.goto('/lab/');
   await expect(page.locator('[data-flow]')).toHaveClass(/is-pinned/);
-  await expect(page.locator('html')).toHaveAttribute('data-webgl', /on|fallback/, {
-    timeout: 10_000,
-  });
+  await expect(page.locator('[data-stamp]')).toHaveClass(/is-on/, { timeout: 30_000 });
+  await expect(page.locator('[data-log]')).toContainText('100%');
+});
+
+test('the paper toggle switches to tracing paper and is remembered', async ({ page }) => {
+  await page.goto('/es/lab/');
+  const html = page.locator('html');
+  await expect(html).toHaveAttribute('data-paper', 'cyan');
+  await page.locator('[data-paper-toggle]').click();
+  await expect(html).toHaveAttribute('data-paper', 'calco');
+  await expect(page.locator('[data-paper-toggle]')).toContainText('calco');
+  await page.reload();
+  await expect(html).toHaveAttribute('data-paper', 'calco');
 });

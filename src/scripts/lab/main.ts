@@ -1,31 +1,93 @@
 /**
- * Motion layer for /lab/. Everything here is progressive enhancement:
- * without JS, or with prefers-reduced-motion, the page is a readable static document.
+ * Behaviour for /lab/ ("Plano de obra"). Progressive enhancement throughout:
+ * without JS the page is a complete document; with reduced motion the drawing is
+ * shown finished and nothing pins or animates.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { sceneState } from './state';
+import { createBlueprint, type Blueprint } from './blueprint';
 
 const root = document.documentElement;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-if (!reduceMotion) init();
+paperToggle();
+sizeSheets();
+window.addEventListener('resize', sizeSheets);
+if (!reduceMotion) motion();
+void document.fonts.ready.then(() => {
+  const plan = drawing();
+  if (!reduceMotion && finePointer && plan) cursor(plan);
+});
 
-function init() {
+/** Blueprint ↔ tracing paper, remembered per visitor. */
+function paperToggle() {
+  const button = document.querySelector<HTMLButtonElement>('[data-paper-toggle]');
+  const name = button?.querySelector<HTMLElement>('[data-paper-name]');
+  if (!button || !name) return;
+  const render = () => {
+    const paper = root.dataset.paper === 'calco' ? 'calco' : 'cyan';
+    name.textContent = button.dataset[paper] ?? paper;
+    button.setAttribute('aria-pressed', String(paper === 'calco'));
+  };
+  render();
+  button.addEventListener('click', () => {
+    const next = root.dataset.paper === 'calco' ? 'cyan' : 'calco';
+    root.dataset.paper = next;
+    try {
+      localStorage.setItem('lab-paper', next);
+    } catch {
+      /* storage unavailable: the choice lasts for this page view */
+    }
+    render();
+  });
+}
+
+function drawing(): Blueprint | null {
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-drawing]');
+  const data = document.querySelector<HTMLElement>('.bp-drawing-data');
+  if (!canvas || !data) return null;
+  const log = document.querySelector<HTMLElement>('[data-log]');
+  const stamp = document.querySelector<HTMLElement>('[data-stamp]');
+  const agentsWord = log?.dataset.agents ?? 'agents';
+  const strokesWord = log?.dataset.strokes ?? 'strokes';
+  return createBlueprint(canvas, {
+    levels: JSON.parse(data.dataset.levels ?? '[]') as string[],
+    dimension: data.dataset.dimension ?? '',
+    animate: !reduceMotion,
+    onProgress: (busy, ratio) => {
+      if (log)
+        log.textContent = `${agentsWord}: ${busy}/5 · ${strokesWord} ${Math.round(ratio * 100)}%`;
+    },
+    onDone: () => {
+      if (log) log.textContent = `${agentsWord}: 0/5 · ${strokesWord} 100%`;
+      window.setTimeout(() => stamp?.classList.add('is-on'), 450);
+    },
+  });
+}
+
+/** Give each project sheet's hover trace (and its agent) the sheet's own outline. */
+function sizeSheets() {
+  document.querySelectorAll<HTMLElement>('[data-card]').forEach((sheet) => {
+    const w = sheet.offsetWidth - 16;
+    const h = sheet.offsetHeight - 16;
+    const rect = sheet.querySelector('.bp-trace rect');
+    rect?.setAttribute('width', String(w));
+    rect?.setAttribute('height', String(h));
+    const agent = sheet.querySelector<HTMLElement>('.bp-sheet-agent');
+    if (agent) agent.style.offsetPath = `path('M 8 8 H ${w + 8} V ${h + 8} H 8 Z')`;
+  });
+}
+
+function motion() {
   root.classList.add('motion');
   gsap.registerPlugin(ScrollTrigger);
 
-  const lenis = new Lenis({ lerp: 0.1 });
-  lenis.on('scroll', (l: Lenis) => {
-    ScrollTrigger.update();
-    sceneState.velocity = l.velocity;
-    sceneState.progress = l.progress;
-  });
+  const lenis = new Lenis({ lerp: 0.12 });
+  lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
-
   document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {
       const id = a.getAttribute('href');
@@ -37,253 +99,134 @@ function init() {
     });
   });
 
-  kineticTitle();
-  reveals();
-  flow();
-  work(lenis);
-  if (finePointer) {
-    cursor();
-    magnetic();
-    tilt();
-  }
-  window.addEventListener('pointermove', (e) => {
-    sceneState.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-    sceneState.pointer.y = -((e.clientY / window.innerHeight) * 2 - 1);
-  });
-
-  loadScene();
-}
-
-/** Split the hero name into characters and raise them line by line. */
-function kineticTitle() {
-  const title = document.querySelector<HTMLElement>('[data-kinetic]');
-  if (!title) return;
-  title.querySelectorAll<HTMLElement>('.line > span').forEach((word) => {
-    const text = word.textContent ?? '';
-    word.textContent = '';
-    for (const ch of text) {
-      const span = document.createElement('span');
-      span.className = 'char';
-      span.textContent = ch === ' ' ? ' ' : ch;
-      word.appendChild(span);
-    }
-  });
-  gsap.from(title.querySelectorAll('.char'), {
-    yPercent: 115,
-    rotate: 6,
-    duration: 1.1,
-    ease: 'expo.out',
-    stagger: 0.035,
-    delay: 0.15,
-  });
-  gsap.from('[data-hero-fade]', {
+  gsap.from('.bp-hero-copy > *', {
     opacity: 0,
-    y: 16,
+    y: 24,
     duration: 1,
     ease: 'power3.out',
-    stagger: 0.12,
-    delay: 0.7,
+    stagger: 0.1,
+    delay: 0.1,
   });
-}
-
-function reveals() {
   gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
     gsap.from(el, {
       opacity: 0,
-      y: 48,
-      duration: 1.1,
+      y: 32,
+      duration: 0.9,
       ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 88%' },
+      scrollTrigger: { trigger: el, start: 'top 90%' },
     });
   });
+
+  flow();
 }
 
-/** Pin the workflow section and step through it with the scroll. */
+/** Pin the loop and advance the works schedule with the scroll. */
 function flow() {
   const section = document.querySelector<HTMLElement>('[data-flow]');
   if (!section) return;
   const steps = [...section.querySelectorAll<HTMLElement>('[data-step]')];
+  const rows = [...section.querySelectorAll<SVGGElement>('[data-row]')];
   const counter = section.querySelector<HTMLElement>('[data-flow-counter]');
-  const bar = section.querySelector<HTMLElement>('.lab-flow-bar');
+  const bar = section.querySelector<HTMLElement>('.bp-flow-bar');
   section.classList.add('is-pinned');
 
-  const setActive = (i: number) => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const render = (progress: number) => {
+    const n = steps.length;
+    const active = Math.min(n - 1, Math.floor(progress * n));
     steps.forEach((s, j) => {
-      const on = i === j;
-      s.classList.toggle('is-active', on);
-      s.setAttribute('aria-hidden', String(!on));
+      s.classList.toggle('is-active', j === active);
+      s.setAttribute('aria-hidden', String(j !== active));
     });
-    if (counter)
-      counter.textContent = `${String(i + 1).padStart(2, '0')} / ${String(steps.length).padStart(2, '0')}`;
-    sceneState.active = i;
+    rows.forEach((row, j) => {
+      const local = Math.min(1, Math.max(0, progress * n - j));
+      row.classList.toggle('is-active', j === active);
+      const line = row.querySelector<SVGLineElement>('.bp-sch-bar');
+      const dot = row.querySelector<SVGCircleElement>('.bp-sch-agent');
+      if (!line) return;
+      line.style.strokeDashoffset = String(1 - local);
+      const x1 = Number(line.getAttribute('x1'));
+      const x2 = Number(line.getAttribute('x2'));
+      dot?.setAttribute('cx', String(x1 + (x2 - x1) * local));
+    });
+    if (counter) counter.textContent = `${pad(active + 1)} / ${pad(n)}`;
+    if (bar) bar.style.transform = `scaleX(${progress})`;
   };
-  setActive(0);
-  sceneState.active = -1;
-
-  // Particles gather while the section scrolls into view.
-  ScrollTrigger.create({
-    trigger: section,
-    start: 'top bottom',
-    end: 'top top',
-    scrub: true,
-    onUpdate: (self) => {
-      sceneState.gather = self.progress;
-    },
-  });
+  render(0);
 
   ScrollTrigger.create({
     trigger: section,
     start: 'top top',
-    end: () => `+=${window.innerHeight * steps.length * 0.85}`,
+    end: () => `+=${window.innerHeight * steps.length * 0.8}`,
     pin: true,
     scrub: true,
-    onUpdate: (self) => {
-      setActive(Math.min(steps.length - 1, Math.floor(self.progress * steps.length)));
-      if (bar) bar.style.transform = `scaleX(${self.progress})`;
-    },
-    onLeaveBack: () => {
-      sceneState.active = -1;
-    },
-  });
-
-  // Released after the workflow: particles drift away while the projects scroll in.
-  ScrollTrigger.create({
-    trigger: '[data-work]',
-    start: 'top bottom',
-    end: 'top 20%',
-    scrub: true,
-    onUpdate: (self) => {
-      sceneState.release = self.progress;
-    },
+    onUpdate: (self) => render(self.progress),
   });
 }
 
-/** Desktop: pin the projects and translate the track horizontally. */
-function work(lenis: Lenis) {
-  const mm = gsap.matchMedia();
-  mm.add('(min-width: 768px)', () => {
-    const section = document.querySelector<HTMLElement>('[data-work]');
-    const track = section?.querySelector<HTMLElement>('.lab-track');
-    if (!section || !track) return;
-    section.classList.add('is-horizontal');
-    const distance = () => Math.max(0, track.scrollWidth - track.clientWidth);
-
-    const tween = gsap.to(track, {
-      x: () => -distance(),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${distance()}`,
-        pin: true,
-        scrub: true,
-        invalidateOnRefresh: true,
-      },
-    });
-
-    // Keyboard: bring a focused card into view by scrolling to its position.
-    const onFocus = (e: FocusEvent) => {
-      const card = (e.target as HTMLElement).closest<HTMLElement>('[data-card]');
-      const st = tween.scrollTrigger;
-      if (!card || !st || distance() === 0) return;
-      const ratio = Math.min(1, card.offsetLeft / distance());
-      lenis.scrollTo(st.start + (st.end - st.start) * ratio, { immediate: true });
-    };
-    track.addEventListener('focusin', onFocus);
-
-    return () => {
-      track.removeEventListener('focusin', onFocus);
-      section.classList.remove('is-horizontal');
-    };
-  });
-}
-
-function cursor() {
-  const dot = document.createElement('div');
-  const ring = document.createElement('div');
-  dot.className = 'lab-cursor-dot';
-  ring.className = 'lab-cursor-ring';
-  dot.setAttribute('aria-hidden', 'true');
-  ring.setAttribute('aria-hidden', 'true');
-  document.body.append(dot, ring);
-  // Stay hidden until the first pointer move so nothing sits at (0, 0).
-  gsap.set([dot, ring], { autoAlpha: 0 });
-  window.addEventListener(
-    'pointermove',
-    () => {
-      root.classList.add('has-cursor');
-      gsap.to([dot, ring], { autoAlpha: 1, duration: 0.3 });
-    },
-    { once: true },
-  );
-
-  const dx = gsap.quickTo(dot, 'x', { duration: 0.08 });
-  const dy = gsap.quickTo(dot, 'y', { duration: 0.08 });
-  const rx = gsap.quickTo(ring, 'x', { duration: 0.45, ease: 'power3' });
-  const ry = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3' });
+/** CAD cursor: full-screen crosshair, coordinates, and snapping to drawn vertices. */
+function cursor(plan: Blueprint) {
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-cursor]');
+  const ctx = canvas?.getContext('2d');
+  if (!canvas || !ctx) return;
+  const pointer = { x: 0, y: 0, on: false };
+  let dpr = 1;
+  const resize = () => {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+  };
+  resize();
+  window.addEventListener('resize', resize);
   window.addEventListener('pointermove', (e) => {
-    dx(e.clientX);
-    dy(e.clientY);
-    rx(e.clientX);
-    ry(e.clientY);
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    if (!pointer.on) root.classList.add('has-cursor');
+    pointer.on = true;
   });
-  document.addEventListener('pointerover', (e) => {
-    const interactive = (e.target as HTMLElement).closest('a, button');
-    ring.classList.toggle('is-hover', !!interactive);
-  });
-}
+  document.addEventListener('pointerleave', () => (pointer.on = false));
 
-function magnetic() {
-  document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
-    const x = gsap.quickTo(el, 'x', { duration: 0.6, ease: 'elastic.out(1, 0.4)' });
-    const y = gsap.quickTo(el, 'y', { duration: 0.6, ease: 'elastic.out(1, 0.4)' });
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      x((e.clientX - (r.left + r.width / 2)) * 0.35);
-      y((e.clientY - (r.top + r.height / 2)) * 0.35);
-    });
-    el.addEventListener('pointerleave', () => {
-      x(0);
-      y(0);
-    });
+  const css = (v: string) => getComputedStyle(root).getPropertyValue(v).trim();
+  const fmt = (n: number) => (n * 100).toFixed(0).padStart(5, '0');
+  // Redrawn every tick: the drawing underneath keeps changing while the agents work.
+  gsap.ticker.add(() => {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    if (!pointer.on) return;
+    let { x, y } = pointer;
+    let snapped = false;
+    let best = 14;
+    for (const [vx, vy] of plan.vertices()) {
+      const d = Math.hypot(vx - pointer.x, vy - pointer.y);
+      if (d < best) {
+        best = d;
+        x = vx;
+        y = vy;
+        snapped = true;
+      }
+    }
+    const ink = css('--rule');
+    const accent = css('--accent');
+    ctx.strokeStyle = ink;
+    ctx.globalAlpha = 0.25;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, Math.round(y) + 0.5);
+    ctx.lineTo(W, Math.round(y) + 0.5);
+    ctx.moveTo(Math.round(x) + 0.5, 0);
+    ctx.lineTo(Math.round(x) + 0.5, H);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = snapped ? accent : ink;
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(x - 6, y - 6, 12, 12);
+    const [wx, wy] = plan.toWorld(x, y);
+    ctx.fillStyle = snapped ? accent : ink;
+    ctx.font = '500 10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(`X ${fmt(wx)}  Y ${fmt(wy)}${snapped ? '  · END' : ''}`, x + 12, y + 10);
   });
-}
-
-/** Spotlight + 3D tilt on project cards. */
-function tilt() {
-  document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((card) => {
-    const rx = gsap.quickTo(card, 'rotationX', { duration: 0.5, ease: 'power3' });
-    const ry = gsap.quickTo(card, 'rotationY', { duration: 0.5, ease: 'power3' });
-    gsap.set(card, { transformPerspective: 900 });
-    card.addEventListener('pointermove', (e) => {
-      const r = card.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width;
-      const py = (e.clientY - r.top) / r.height;
-      card.style.setProperty('--mx', `${px * 100}%`);
-      card.style.setProperty('--my', `${py * 100}%`);
-      ry((px - 0.5) * 8);
-      rx((0.5 - py) * 8);
-    });
-    card.addEventListener('pointerleave', () => {
-      rx(0);
-      ry(0);
-    });
-  });
-}
-
-/** Load Three.js only once the page is idle, so it never delays the content. */
-function loadScene() {
-  const canvas = document.querySelector<HTMLCanvasElement>('[data-scene]');
-  if (!canvas) return;
-  const steps = Number(canvas.dataset.steps ?? 5);
-  const start = () =>
-    import('./scene').then(({ createScene }) => {
-      const scene = createScene(canvas, steps);
-      root.dataset.webgl = scene ? 'on' : 'fallback';
-    });
-  if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(() => void start(), { timeout: 1500 });
-  } else {
-    setTimeout(() => void start(), 600);
-  }
 }

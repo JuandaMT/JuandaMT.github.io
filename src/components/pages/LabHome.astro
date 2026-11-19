@@ -1,4 +1,8 @@
 ---
+/**
+ * Interactive portfolio, drawn as a set of technical sheets ("Plano de obra").
+ * All copy comes from i18n and content collections; motion lives in scripts/lab.
+ */
 import Lab from '../../layouts/Lab.astro';
 import ExtLink from '../ExtLink.astro';
 import { type Lang, localizePath, useTranslations } from '../../i18n/utils';
@@ -14,146 +18,247 @@ const t = ui.lab;
 const steps = ui.ai.steps;
 const projects = (await getProjects(lang)).filter((p) => p.data.tier === 'main');
 const experience = await getExperience(lang);
-const stack = ui.skills.groups.flatMap((g) => g.items);
-const half = Math.ceil(stack.length / 2);
-const rows = [stack.slice(0, half), stack.slice(half)];
 const cvs = [
   { label: ui.contact.cvEn, href: profile.cv.en, lang: 'en' },
   { label: ui.contact.cvEs, href: profile.cv.es, lang: 'es' },
 ].filter((c) => publicFileExists(c.href));
 const [first, ...rest] = profile.name.split(' ');
 const nameLines = [`${first} ${rest[0] ?? ''}`.trim(), rest.slice(1).join(' ')].filter(Boolean);
+
+// Sheet numbering: hero, loop, one per project, experience, materials, handover.
+const total = 2 + projects.length + 3;
+const pad = (n: number) => String(n).padStart(2, '0');
+const sheetOf = (n: number) => `${pad(n)} / ${pad(total)}`;
+const expSheet = 3 + projects.length;
+const revision = new Date().toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+
+// Decorative sketches for the project sheets (cycled).
+const sketches = [
+  '<rect x="10" y="10" width="100" height="18"/><rect x="10" y="36" width="100" height="18"/><rect x="10" y="62" width="100" height="18"/><path d="M60 28v8M60 54v8"/>',
+  '<circle cx="18" cy="45" r="8"/><circle cx="60" cy="20" r="8"/><circle cx="60" cy="70" r="8"/><circle cx="102" cy="45" r="8"/><path d="M26 42l26-18M26 48l26 18M68 22l26 18M68 68l26-18"/>',
+  '<rect x="8" y="8" width="44" height="32"/><rect x="68" y="8" width="44" height="32"/><rect x="8" y="52" width="104" height="30"/><path d="M30 40v12M90 40v12"/>',
+  '<path d="M8 80 C 30 80, 34 20, 60 30 S 92 70, 112 12"/><path d="M8 84h104M8 84V8"/>',
+  '<rect x="14" y="8" width="60" height="76"/><rect x="34" y="14" width="60" height="70"/><path d="M44 30h40M44 40h40M44 50h28"/>',
+];
 ---
 
-<Lab lang={lang} steps={steps.length}>
-  <!-- ============ Hero ============ -->
-  <section class="relative flex min-h-svh flex-col justify-end px-4 pt-24 pb-10 sm:px-8 sm:pb-14">
-    <p class="font-mono text-xs tracking-wide text-accent" data-hero-fade>
-      {t.eyebrow}
-    </p>
-    <h1
-      class="lab-title mt-4 text-[clamp(3.4rem,13vw,12.5rem)] leading-[0.86] font-semibold tracking-[-0.055em]"
-      aria-label={profile.name}
-      data-kinetic
-    >
-      {nameLines.map((line) => (
-        <span class="line" aria-hidden="true">
-          <span>{line}</span>
-        </span>
-      ))}
-    </h1>
-    <div class="mt-8 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-      <p class="max-w-xl text-lg leading-relaxed text-pretty text-muted sm:text-xl" data-hero-fade>
-        {t.lead}
+<Lab lang={lang}>
+  <!-- ============ 01 · Elevation (hero) ============ -->
+  <section class="bp-section bp-hero" aria-labelledby="hero-title">
+    <div class="bp-hero-copy">
+      <p class="bp-eyebrow">
+        {t.sheet} 01 — {t.eyebrow}
       </p>
-      <a
-        href="#flow"
-        class="lab-scroll-hint flex items-center gap-3 font-mono text-xs tracking-widest text-muted uppercase"
-        data-hero-fade
-      >
-        {t.scroll}
-        <span aria-hidden="true" class="inline-block h-8 w-px bg-ink/40"></span>
-      </a>
+      <h1 id="hero-title" class="bp-display bp-hero-title" aria-label={profile.name}>
+        {nameLines.map((line) => (
+          <span aria-hidden="true">{line}</span>
+        ))}
+      </h1>
+      <p class="bp-lead">{t.lead}</p>
+      <div class="bp-actions">
+        <a class="bp-btn bp-btn-primary" href="#work">
+          {t.workLabel}
+          <span aria-hidden="true">↓</span>
+        </a>
+        <a class="bp-btn" href="#contact">
+          {ui.nav.contact}
+        </a>
+      </div>
+    </div>
+
+    <div
+      class="bp-drawing-data"
+      hidden
+      data-levels={JSON.stringify(t.drawing.levels.map((l) => l.toUpperCase()))}
+      data-dimension={t.drawing.dimension.toUpperCase()}
+    ></div>
+
+    <div class="bp-titleblock" role="group" aria-label={t.titleBlock.label}>
+      <dl class="bp-titleblock-grid">
+        <div class="span-2">
+          <dt>{t.titleBlock.project}</dt>
+          <dd>{t.titleBlock.projectValue}</dd>
+        </div>
+        <div>
+          <dt>{t.titleBlock.drawing}</dt>
+          <dd>{t.titleBlock.drawingValue}</dd>
+        </div>
+        <div class="hide-sm">
+          <dt>{t.titleBlock.scale}</dt>
+          <dd>1:1</dd>
+        </div>
+        <div class="span-2">
+          <dt>{t.titleBlock.role}</dt>
+          <dd>{ui.meta.role}</dd>
+        </div>
+        <div>
+          <dt>{t.titleBlock.sheet}</dt>
+          <dd>{sheetOf(1)}</dd>
+        </div>
+        <div class="hide-sm">
+          <dt>{t.titleBlock.revision}</dt>
+          <dd>{revision}</dd>
+        </div>
+      </dl>
+      <div class="bp-titleblock-status">
+        <p
+          class="bp-log"
+          aria-hidden="true"
+          data-log
+          data-agents={t.titleBlock.agents}
+          data-strokes={t.titleBlock.strokes}
+        >
+          {t.titleBlock.strokes} 100%
+        </p>
+        <p class="bp-stamp" data-stamp>
+          {t.titleBlock.stamp}
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- ============ Flow (pinned) ============ -->
+  <!-- ============ 02 · The loop (works schedule, pinned) ============ -->
   <section
     id="flow"
-    class="lab-flow relative flex flex-col justify-end px-4 py-24 sm:px-8 sm:pb-16"
+    class="bp-section bp-flow"
     aria-labelledby="flow-title"
     data-flow
     tabindex="-1"
   >
-    <div class="max-w-3xl">
-      <p class="font-mono text-xs tracking-wide text-accent">{t.flowLabel}</p>
-      <h2
-        id="flow-title"
-        class="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-5xl"
-      >
-        {t.flowTitle}
-      </h2>
-      <div class="lab-flow-progress mt-8 flex items-center gap-4">
-        <span class="font-mono text-xs text-muted" data-flow-counter></span>
-        <span class="relative h-px w-40 bg-line" aria-hidden="true">
-          <span class="lab-flow-bar absolute inset-0 bg-accent"></span>
-        </span>
+    <div class="bp-head">
+      <div>
+        <p class="bp-eyebrow">
+          {t.sheet} 02 — {t.flowLabel}
+        </p>
+        <h2 id="flow-title" class="bp-display bp-h2">
+          {t.flowTitle}
+        </h2>
       </div>
-      <ol class="lab-flow-steps mt-8 space-y-10">
-        {steps.map((step, i) => (
-          <li data-step>
-            <p class="font-mono text-xs text-muted">
-              {String(i + 1).padStart(2, '0')} · {step.tag}
-            </p>
-            <h3 class="mt-2 text-4xl font-semibold tracking-tight sm:text-6xl">{step.name}</h3>
-            <p class="mt-4 max-w-xl text-lg leading-relaxed text-pretty text-muted">{step.text}</p>
-          </li>
-        ))}
-      </ol>
+    </div>
+    <div class="bp-flow-body">
+      <div>
+        <div class="bp-flow-progress" aria-hidden="true">
+          <span data-flow-counter></span>
+          <span class="bp-flow-track">
+            <span class="bp-flow-bar"></span>
+          </span>
+        </div>
+        <ol class="bp-steps">
+          {steps.map((step, i) => (
+            <li data-step>
+              <p class="bp-step-meta">
+                {pad(i + 1)} · {t.phases[i]} · {step.tag}
+              </p>
+              <h3 class="bp-display bp-step-title">{step.name}</h3>
+              <p class="bp-step-text">{step.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <figure class="bp-schedule" aria-hidden="true">
+        <figcaption>{t.scheduleLabel}</figcaption>
+        <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid meet">
+          {[0, 1, 2, 3, 4, 5].map((c) => (
+            <line class="bp-sch-grid" x1={110 + c * 56} y1="14" x2={110 + c * 56} y2="250" />
+          ))}
+          {steps.map((_, i) => {
+            const y = 34 + i * 48;
+            const x1 = 110 + i * 46;
+            const x2 = x1 + 100;
+            return (
+              <g data-row>
+                <text class="bp-sch-label" x="0" y={y + 4}>
+                  {pad(i + 1)} {t.phases[i]}
+                </text>
+                <line class="bp-sch-base" x1={x1} y1={y} x2={x2} y2={y} />
+                <line class="bp-sch-bar" x1={x1} y1={y} x2={x2} y2={y} pathLength="1" />
+                <circle class="bp-sch-agent" cx={x1} cy={y} r="5" />
+                {i < steps.length - 1 && (
+                  <path class="bp-sch-link" d={`M${x2} ${y} v14 H${x1 + 46} V${y + 42}`} />
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </figure>
     </div>
   </section>
 
-  <!-- ============ Work (horizontal) ============ -->
-  <section id="work" class="lab-work relative py-24" aria-labelledby="work-title" data-work>
-    <div class="mb-10 flex items-end justify-between gap-6 px-4 sm:px-8">
-      <h2 id="work-title" class="text-5xl font-semibold tracking-[-0.04em] sm:text-7xl" data-reveal>
-        {t.workLabel}
-      </h2>
-      <p class="hidden font-mono text-xs text-muted md:block" aria-hidden="true">
-        {t.workHint} →
-      </p>
+  <!-- ============ 03…· Projects (one sheet each) ============ -->
+  <section id="work" class="bp-section bp-work" aria-labelledby="work-title">
+    <div class="bp-head">
+      <div>
+        <p class="bp-eyebrow">
+          {t.sheet}
+          {pad(3)} — {pad(2 + projects.length)}
+        </p>
+        <h2 id="work-title" class="bp-display bp-h2">
+          {t.workLabel}
+        </h2>
+      </div>
+      <p class="bp-hint">{t.workHint}</p>
     </div>
-    <ul class="lab-track px-4 sm:px-8">
+    <ul class="bp-sheets">
       {projects.map((project, i) => {
         const d = project.data;
         const href = localizePath(`/projects/${slugOf(project)}/`, lang);
+        const n = 3 + i;
         return (
-          <li
-            class="lab-card flex w-[85vw] shrink-0 flex-col rounded-3xl border border-line p-7 sm:w-[min(36rem,60vw)] sm:p-9"
-            data-card
-            data-tilt
-          >
-            <div class="flex items-center justify-between font-mono text-xs text-muted">
-              <span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-              {d.status && (
-                <span class="rounded-full border border-line px-2.5 py-0.5">
-                  {ui.projects.status[d.status]}
-                </span>
-              )}
-            </div>
-            <h3 class="mt-16 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">{d.title}</h3>
-            <p class="mt-4 text-lg leading-relaxed text-pretty text-muted">{d.tagline}</p>
-            {d.stack.length > 0 && (
-              <p class="mt-6 font-mono text-xs text-muted">{d.stack.join(' · ')}</p>
-            )}
-            <div class="mt-auto flex flex-wrap items-center gap-x-6 gap-y-2 pt-10 text-sm font-medium">
-              {d.detailPage && (
-                <a href={href} class="link">
-                  {t.caseStudy}
-                  <span aria-hidden="true" class="ml-1">
-                    →
-                  </span>
-                </a>
-              )}
-              {d.links.repo && (
-                <ExtLink href={d.links.repo} lang={lang} class="link">
-                  {ui.projects.repo}
-                  <span aria-hidden="true" class="ml-1">
-                    ↗
-                  </span>
-                </ExtLink>
-              )}
-              {d.links.live && (
-                <ExtLink href={d.links.live} lang={lang} class="link">
-                  {ui.projects.live}
-                  <span aria-hidden="true" class="ml-1">
-                    ↗
-                  </span>
-                </ExtLink>
-              )}
-              {d.linkNote && (
-                <span class="font-mono text-xs font-normal text-muted">{d.linkNote}</span>
-              )}
+          <li class="bp-sheet" data-card>
+            <svg class="bp-trace" aria-hidden="true">
+              <rect x="8" y="8" pathLength="1" />
+            </svg>
+            <span class="bp-sheet-agent" aria-hidden="true" />
+            <svg class="bp-sketch" viewBox="0 0 120 90" aria-hidden="true">
+              <Fragment set:html={sketches[i % sketches.length]} />
+            </svg>
+            <div class="bp-sheet-inner">
+              <div class="bp-sheet-top">
+                <span>L-{pad(n)}</span>
+                {d.status && <span class="bp-badge">{ui.projects.status[d.status]}</span>}
+              </div>
+              <h3 class="bp-display bp-sheet-title">{d.title}</h3>
+              <p class="bp-sheet-text">{d.tagline}</p>
+              <div class="bp-sheet-links">
+                {d.detailPage && (
+                  <a href={href} class="bp-link">
+                    {t.caseStudy}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                )}
+                {d.links.repo && (
+                  <ExtLink href={d.links.repo} lang={lang} class="bp-link">
+                    {ui.projects.repo}
+                    <span aria-hidden="true">↗</span>
+                  </ExtLink>
+                )}
+                {d.links.live && (
+                  <ExtLink href={d.links.live} lang={lang} class="bp-link">
+                    {ui.projects.live}
+                    <span aria-hidden="true">↗</span>
+                  </ExtLink>
+                )}
+                {d.linkNote && <span class="bp-note">{d.linkNote}</span>}
+              </div>
+              <dl class="bp-sheet-foot">
+                <div>
+                  <dt>{t.materials}</dt>
+                  <dd>{d.stack.length > 0 ? d.stack.join(' · ') : '—'}</dd>
+                </div>
+                <div>
+                  <dt>{t.ref}</dt>
+                  <dd>{slugOf(project)}</dd>
+                </div>
+                <div>
+                  <dt>{t.titleBlock.sheet}</dt>
+                  <dd>{sheetOf(n)}</dd>
+                </div>
+              </dl>
             </div>
           </li>
         );
@@ -161,30 +266,44 @@ const nameLines = [`${first} ${rest[0] ?? ''}`.trim(), rest.slice(1).join(' ')].
     </ul>
   </section>
 
-  <!-- ============ Experience (stacked) ============ -->
-  <section id="experience" class="relative px-4 py-24 sm:px-8 sm:py-32" aria-labelledby="exp-title">
-    <h2 id="exp-title" class="text-5xl font-semibold tracking-[-0.04em] sm:text-7xl" data-reveal>
-      {t.experienceLabel}
-    </h2>
-    <ol class="mt-14 space-y-8 pb-[10vh]">
-      {experience.map(({ data }, i) => (
-        <li
-          class="lab-stack-card rounded-3xl border border-line bg-surface p-7 shadow-[0_-20px_60px_-30px_rgb(0_0_0/0.8)] sm:p-10"
-          style={`--i:${i}`}
-        >
-          <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-            <h3 class="text-3xl font-semibold tracking-tight sm:text-4xl">{data.company}</h3>
-            <p class="font-mono text-xs text-muted">
-              {data.start} — {data.end ?? ui.experience.present}
-            </p>
+  <!-- ============ Experience (dimensioned timeline) ============ -->
+  <section id="experience" class="bp-section" aria-labelledby="exp-title">
+    <div class="bp-head">
+      <div>
+        <p class="bp-eyebrow">
+          {t.sheet} {pad(expSheet)}
+        </p>
+        <h2 id="exp-title" class="bp-display bp-h2">
+          {t.experienceLabel}
+        </h2>
+      </div>
+    </div>
+    <ol class="bp-jobs">
+      {experience.map(({ data }) => (
+        <li class="bp-job" data-reveal>
+          <p class="bp-dim">
+            <span class="bp-dim-line" aria-hidden="true" />
+            <span class="bp-dim-text">
+              {data.start} → {data.end ?? ui.experience.present}
+            </span>
+            <span class="bp-dim-line" aria-hidden="true" />
+          </p>
+          <div class="bp-job-head">
+            <h3 class="bp-display bp-job-title">
+              {data.companyUrl ? (
+                <ExtLink href={data.companyUrl} lang={lang} class="bp-link-plain">
+                  {data.company}
+                </ExtLink>
+              ) : (
+                data.company
+              )}
+            </h3>
+            <p class="bp-job-role">{data.role}</p>
           </div>
-          <p class="mt-2 font-medium">{data.role}</p>
-          <p class="mt-3 max-w-3xl text-muted">{data.context}</p>
-          <ul class="mt-6 grid gap-3 text-sm leading-relaxed sm:grid-cols-2">
+          <p class="bp-job-context">{data.context}</p>
+          <ul class="bp-job-list">
             {data.highlights.map((h) => (
-              <li class="relative pl-4 text-pretty before:absolute before:top-[0.65em] before:left-0 before:size-1.5 before:rounded-full before:bg-accent">
-                {h}
-              </li>
+              <li>{h}</li>
             ))}
           </ul>
         </li>
@@ -192,99 +311,73 @@ const nameLines = [`${first} ${rest[0] ?? ''}`.trim(), rest.slice(1).join(' ')].
     </ol>
   </section>
 
-  <!-- ============ Stack (marquee) ============ -->
-  <section class="relative space-y-4 py-16" aria-labelledby="stack-title">
-    <h2 id="stack-title" class="px-4 font-mono text-xs tracking-wide text-accent sm:px-8">
-      {t.stackLabel}
-    </h2>
-    {rows.map((row, r) => (
-      <div
-        class="lab-marquee"
-        data-reverse={r === 1 ? '' : undefined}
-        style={`--speed:${50 + r * 10}s`}
-      >
-        {[0, 1].map((copy) => (
-          <ul
-            class="lab-marquee-track text-3xl font-semibold tracking-tight whitespace-nowrap text-ink/80 sm:text-5xl"
-            aria-hidden={copy === 1 ? 'true' : undefined}
-          >
-            {row.map((item) => (
-              <li class="flex items-center gap-10">
-                {item}
-                <span class="text-accent" aria-hidden="true">
-                  ✦
-                </span>
-              </li>
-            ))}
-          </ul>
-        ))}
+  <!-- ============ Materials schedule (skills) ============ -->
+  <section class="bp-section" aria-labelledby="stack-title">
+    <div class="bp-head">
+      <div>
+        <p class="bp-eyebrow">
+          {t.sheet} {pad(expSheet + 1)}
+        </p>
+        <h2 id="stack-title" class="bp-display bp-h2">
+          {t.stackLabel}
+        </h2>
       </div>
-    ))}
+    </div>
+    <dl class="bp-materials">
+      {ui.skills.groups.map((g, i) => (
+        <div class="bp-material" data-reveal>
+          <dt>
+            <span class="bp-material-code">M-{pad(i + 1)}</span>
+            {g.name}
+          </dt>
+          <dd>{g.items.join(' · ')}</dd>
+        </div>
+      ))}
+    </dl>
   </section>
 
-  <!-- ============ Contact ============ -->
-  <section
-    id="contact"
-    class="relative flex min-h-[90svh] flex-col justify-center px-4 py-24 sm:px-8"
-    aria-labelledby="contact-title"
-  >
-    <h2
-      id="contact-title"
-      class="text-[clamp(3.5rem,14vw,13rem)] leading-[0.85] font-semibold tracking-[-0.055em]"
-      data-reveal
-    >
+  <!-- ============ Handover (contact) ============ -->
+  <section id="contact" class="bp-section bp-contact" aria-labelledby="contact-title">
+    <p class="bp-eyebrow">
+      {t.sheet} {pad(total)} — {t.contactLabel}
+    </p>
+    <h2 id="contact-title" class="bp-display bp-contact-title" data-reveal>
       {ui.contact.title}
     </h2>
-    <p class="mt-8 max-w-xl text-lg leading-relaxed text-pretty text-muted" data-reveal>
+    <p class="bp-lead" data-reveal>
       {ui.contact.text}
     </p>
-    <div class="mt-12 flex flex-wrap items-center gap-4" data-reveal>
+    <div class="bp-actions" data-reveal>
       {profile.email && (
-        <a
-          href={`mailto:${profile.email}`}
-          class="inline-flex h-16 items-center rounded-full bg-accent px-8 text-lg font-semibold text-accent-ink"
-          data-magnetic
-        >
+        <a href={`mailto:${profile.email}`} class="bp-btn bp-btn-primary">
           {t.contactCta}
-          <span class="ml-2" aria-hidden="true">
-            ↗
-          </span>
+          <span aria-hidden="true">↗</span>
         </a>
       )}
-      <ExtLink
-        href={profile.links.linkedin}
-        lang={lang}
-        class="inline-flex h-16 items-center rounded-full border border-line px-7 font-medium"
-        data-magnetic
-      >
+      <ExtLink href={profile.links.linkedin} lang={lang} class="bp-btn">
         LinkedIn
       </ExtLink>
-      <ExtLink
-        href={profile.links.github}
-        lang={lang}
-        class="inline-flex h-16 items-center rounded-full border border-line px-7 font-medium"
-        data-magnetic
-      >
+      <ExtLink href={profile.links.github} lang={lang} class="bp-btn">
         GitHub
       </ExtLink>
     </div>
     {cvs.length > 0 && (
-      <p class="mt-10 flex flex-wrap items-center gap-4 font-mono text-xs text-muted" data-reveal>
+      <p class="bp-cvs" data-reveal>
         <span>{ui.contact.cvTitle}</span>
         {cvs.map((c) => (
-          <a href={c.href} download hreflang={c.lang} class="link text-ink">
+          <a href={c.href} download hreflang={c.lang} class="bp-link">
             {c.label}
           </a>
         ))}
       </p>
     )}
-    <p class="mt-24 flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-muted">
+    <footer class="bp-footer">
       <span>
         © {new Date().getFullYear()} {profile.name}
       </span>
-      <a href={localizePath('/', lang)} class="link text-muted">
+      <a href={localizePath('/', lang)} class="bp-link">
         {t.classic} →
       </a>
-    </p>
+    </footer>
   </section>
 </Lab>

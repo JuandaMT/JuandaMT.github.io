@@ -15,27 +15,13 @@ module.exports = {
       settings: { chromeFlags: '--no-sandbox --headless=new' },
     },
     assert: {
-      // Classic site: 95+ everywhere. Interactive /lab/ (WebGL): 85+ performance, 95+ the rest.
-      assertMatrix: [
-        {
-          matchingUrlPattern: '^(?!.*/lab/).*$',
-          assertions: {
-            'categories:performance': ['error', { minScore: 0.95 }],
-            'categories:accessibility': ['error', { minScore: 0.95 }],
-            'categories:best-practices': ['error', { minScore: 0.95 }],
-            'categories:seo': ['error', { minScore: 0.95 }],
-          },
-        },
-        {
-          matchingUrlPattern: '.*/lab/.*',
-          assertions: {
-            'categories:performance': ['error', { minScore: 0.85 }],
-            'categories:accessibility': ['error', { minScore: 0.95 }],
-            'categories:best-practices': ['error', { minScore: 0.95 }],
-            'categories:seo': ['error', { minScore: 0.95 }],
-          },
-        },
-      ],
+      // 95+ in every category, classic site and /lab/ alike.
+      assertions: {
+        'categories:performance': ['error', { minScore: 0.95 }],
+        'categories:accessibility': ['error', { minScore: 0.95 }],
+        'categories:best-practices': ['error', { minScore: 0.95 }],
+        'categories:seo': ['error', { minScore: 0.95 }],
+      },
     },
     upload: { target: 'filesystem', outputDir: './.lighthouseci' },
   },

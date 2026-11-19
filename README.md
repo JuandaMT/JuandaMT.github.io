@@ -8,17 +8,17 @@ Web personal estática en inglés (`/`) y español (`/es/`). Hecha con **Astro 7
 
 ## Versión interactiva (`/lab/`)
 
-`/lab/` y `/es/lab/` son una versión inmersiva del portfolio, enlazada desde el bloque "Laboratorio" y desde el pie de página. Usa el mismo contenido que la web clásica (`src/content`, `src/i18n`).
+`/lab/` y `/es/lab/` son una versión interactiva del portfolio con la temática **plano de obra**, enlazada desde el bloque "Laboratorio" y desde el pie de página. Usa el mismo contenido que la web clásica (`src/content`, `src/i18n`).
 
-- **Escena WebGL** (Three.js, `src/scripts/lab/scene.ts`): una nube de partículas que se agrupa en un grafo con los pasos del flujo agéntico al hacer scroll.
-- **Movimiento** (GSAP + ScrollTrigger + Lenis, `src/scripts/lab/main.ts`):
-  - título letra a letra;
-  - sección del flujo fijada en pantalla;
-  - proyectos en scroll horizontal;
-  - cursor personalizado, botones magnéticos y tarjetas con inclinación.
-- **Estilos**: `src/styles/lab.css`. Solo tema oscuro.
-- **Mejora progresiva**: sin JS o con `prefers-reduced-motion` es un documento estático completo. Three.js se carga cuando el navegador está libre, después del contenido.
-- **Lighthouse**: rendimiento ≥ 85 y el resto ≥ 95. La web clásica mantiene ≥ 95 en todo.
+- **Alzado del stack** (Canvas 2D, `src/scripts/lab/blueprint.ts`): cinco agentes toman trazos de una cola común y dibujan un edificio de cuatro plantas (infra, backend, frontend, agentes). Al terminar, el cajetín se sella como verificado.
+- **Comportamiento** (GSAP + ScrollTrigger + Lenis, `src/scripts/lab/main.ts`):
+  - el ciclo agéntico queda fijado en pantalla y avanza un programa de obra (diagrama de Gantt) con el scroll;
+  - cada proyecto es una lámina; al pasar el cursor, un agente repasa su contorno;
+  - cursor de CAD con coordenadas que se engancha a los vértices del dibujo;
+  - dos papeles, cianotipo y calco, que se recuerdan por visitante (`localStorage`).
+- **Estilos**: `src/styles/lab.css`. Tipografías Barlow Condensed e IBM Plex Mono (autoalojadas con Fontsource).
+- **Mejora progresiva**: sin JS es un documento completo; con `prefers-reduced-motion` el plano aparece ya dibujado y nada se fija ni se anima.
+- **Lighthouse**: ≥ 95 en todo, igual que la web clásica.
 
 ## Requisitos
 

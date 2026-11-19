@@ -1,6 +1,8 @@
 ---
-import '@fontsource-variable/geist';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/barlow-condensed/latin-600.css';
+import '@fontsource/barlow-condensed/latin-700.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-500.css';
 import '../styles/global.css';
 import '../styles/lab.css';
 import SeoHead from '../components/SeoHead.astro';
@@ -9,51 +11,78 @@ import { type Lang, localizePath, useTranslations } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
-  steps: number;
 }
-const { lang, steps } = Astro.props;
+const { lang } = Astro.props;
 const t = useTranslations(lang);
 const path = '/lab/';
+const zonesX = 'ABCDEFGH'.split('');
+const zonesY = ['1', '2', '3', '4', '5', '6'];
 ---
 
 <!doctype html>
-<html lang={lang} class="dark lab">
+<html lang={lang} class="lab" data-paper="cyan">
   <head>
     <SeoHead
       lang={lang}
       path={path}
       title={t.lab.title}
       description={t.lab.description}
-      themeColor={{ light: '#07080b', dark: '#07080b' }}
+      themeColor={{ light: '#123a66', dark: '#123a66' }}
     />
+    <script is:inline>
+      // Restore the chosen paper before first paint.
+      try {
+        const p = localStorage.getItem('lab-paper');
+        if (p === 'cyan' || p === 'calco') document.documentElement.dataset.paper = p;
+      } catch {
+        /* storage unavailable: keep the default paper */
+      }
+    </script>
   </head>
-  <body class="min-h-dvh text-ink">
-    <canvas class="lab-scene" data-scene data-steps={steps} aria-hidden="true"></canvas>
-    <div class="lab-grain" aria-hidden="true"></div>
+  <body>
+    <canvas class="bp-canvas" data-drawing aria-hidden="true"></canvas>
+    <canvas class="bp-cursor" data-cursor aria-hidden="true"></canvas>
+    <div class="bp-frame" aria-hidden="true">
+      <div class="bp-zones bp-zones-x">
+        {zonesX.map((z) => (
+          <span>{z}</span>
+        ))}
+      </div>
+      <div class="bp-zones bp-zones-y">
+        {zonesY.map((z) => (
+          <span>{z}</span>
+        ))}
+      </div>
+    </div>
     <a href="#main" class="skip-link">
       {t.a11y.skip}
     </a>
 
-    <header class="fixed inset-x-0 top-0 z-40 mix-blend-difference">
-      <div class="flex h-16 items-center justify-between px-4 sm:px-8">
-        <a href={localizePath(path, lang)} class="font-medium tracking-tight">
-          <span class="lab-logo">JDM</span>
-          <span class="sr-only"> · Juan David Mayorga</span>
+    <header class="bp-header">
+      <a href={localizePath(path, lang)} class="bp-logo">
+        <span class="bp-logo-mark">JDM</span>
+        <span class="sr-only"> · Juan David Mayorga</span>
+      </a>
+      <nav class="bp-nav" aria-label={t.a11y.mainNav}>
+        <a href={localizePath('/', lang)} class="bp-navlink" data-classic-link>
+          {t.lab.classic}
         </a>
-        <div class="flex items-center gap-2 sm:gap-4">
-          <a
-            href={localizePath('/', lang)}
-            class="font-mono text-xs text-muted transition-colors hover:text-ink"
-            data-classic-link
-          >
-            {t.lab.classic}
-          </a>
-          <LangSwitch lang={lang} path={path} />
-        </div>
-      </div>
+        <LangSwitch lang={lang} path={path} />
+        <button
+          type="button"
+          class="bp-toggle"
+          data-paper-toggle
+          data-label={t.lab.paper}
+          data-cyan={t.lab.papers.cyan}
+          data-calco={t.lab.papers.calco}
+        >
+          <span class="bp-toggle-prefix">{t.lab.paper}:</span>
+          <span data-paper-name>{t.lab.papers.cyan}</span>
+        </button>
+      </nav>
     </header>
 
-    <main id="main" class="lab-content" tabindex="-1">
+    <main id="main" class="bp-main" tabindex="-1">
       <slot />
     </main>
 
