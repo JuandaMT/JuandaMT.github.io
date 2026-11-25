@@ -8,6 +8,7 @@ contribution:
 status: in-development
 linkNote: Private code · demo on request
 order: 2
+visual: coaching
 detailPage: true
 todos:
   - 'Qué problema resuelve y para quién'

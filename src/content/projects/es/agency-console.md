@@ -13,6 +13,7 @@ status: prototype
 links:
   repo: https://github.com/JuandaMT/Agency-Console
 order: 1
+visual: access
 detailPage: true
 todos:
   - 'Capturas o diagrama de arquitectura de Agency Console'

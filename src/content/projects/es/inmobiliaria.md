@@ -12,4 +12,5 @@ links:
   repo: https://github.com/JuandaMT/webs-con-webgl
   live: https://juandamt.github.io/webs-con-webgl/inmobiliaria/
 order: 8
+visual: building
 ---

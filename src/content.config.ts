@@ -32,6 +32,20 @@ const projects = defineCollection({
     order: z.number(),
     /** Generates /projects/<slug>/ with the Markdown body as case study. */
     detailPage: z.boolean().default(false),
+    /** Line drawing shown on the card and in /lab/ (see ProjectVisual.astro). */
+    visual: z
+      .enum([
+        'access',
+        'coaching',
+        'store',
+        'fitness',
+        'notebook',
+        'garage',
+        'roulette',
+        'building',
+        'crm',
+      ])
+      .optional(),
     /** 'lab' projects render in the smaller "side lab" block. */
     tier: z.enum(['main', 'lab']).default('main'),
     /** Missing data for this project. Shown in dev, collected in TODO.md. */

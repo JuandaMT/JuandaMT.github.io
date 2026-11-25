@@ -12,4 +12,5 @@ links:
   repo: https://github.com/JuandaMT/webs-con-webgl
   live: https://juandamt.github.io/webs-con-webgl/ruleta-pelis/
 order: 7
+visual: roulette
 ---

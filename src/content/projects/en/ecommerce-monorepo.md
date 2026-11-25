@@ -6,6 +6,7 @@ contribution:
   - Built a shared design system in React 19 and TypeScript.
 stack: [React 19, TypeScript, Turborepo, Node.js]
 order: 3
+visual: store
 detailPage: true
 todos:
   - 'Enlace al repositorio del monorepo e-commerce'

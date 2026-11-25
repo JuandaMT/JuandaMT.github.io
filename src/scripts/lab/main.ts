@@ -13,8 +13,6 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 themeColor();
-sizeSheets();
-window.addEventListener('resize', sizeSheets);
 if (!reduceMotion) motion();
 void document.fonts.ready.then(() => {
   const plan = drawing();
@@ -56,19 +54,6 @@ function drawing(): Blueprint | null {
   });
 }
 
-/** Give each project sheet's hover trace (and its agent) the sheet's own outline. */
-function sizeSheets() {
-  document.querySelectorAll<HTMLElement>('[data-card]').forEach((sheet) => {
-    const w = sheet.offsetWidth - 16;
-    const h = sheet.offsetHeight - 16;
-    const rect = sheet.querySelector('.bp-trace rect');
-    rect?.setAttribute('width', String(w));
-    rect?.setAttribute('height', String(h));
-    const agent = sheet.querySelector<HTMLElement>('.bp-sheet-agent');
-    if (agent) agent.style.offsetPath = `path('M 8 8 H ${w + 8} V ${h + 8} H 8 Z')`;
-  });
-}
-
 function motion() {
   root.classList.add('motion');
   gsap.registerPlugin(ScrollTrigger);
@@ -107,6 +92,7 @@ function motion() {
   });
 
   flow();
+  work();
 }
 
 /** Pin the loop and advance the works schedule with the scroll. */
@@ -147,6 +133,63 @@ function flow() {
     trigger: section,
     start: 'top top',
     end: () => `+=${window.innerHeight * steps.length * 0.8}`,
+    pin: true,
+    scrub: true,
+    onUpdate: (self) => render(self.progress),
+  });
+}
+
+/**
+ * Projects: on desktop the section is pinned and the scroll swaps the project; each
+ * scene's drawing draws itself in. On small screens scenes stack and draw as they enter.
+ */
+function work() {
+  const section = document.querySelector<HTMLElement>('[data-work]');
+  if (!section) return;
+  const scenes = [...section.querySelectorAll<HTMLElement>('[data-scene]')];
+  const ticks = [...section.querySelectorAll<HTMLElement>('[data-tick]')];
+  const counter = section.querySelector<HTMLElement>('[data-work-counter]');
+  const pad = (n: number) => String(n).padStart(2, '0');
+  // Strokes are drawn in by dashoffset, which needs a normalised path length.
+  scenes.forEach((scene) =>
+    scene
+      .querySelectorAll(
+        '.pv :is(path, line, rect, circle, polyline, ellipse):not(.dash, .flow, .ring)',
+      )
+      .forEach((el) => el.setAttribute('pathLength', '1')),
+  );
+
+  const roomy = matchMedia('(min-width: 901px) and (min-height: 620px)').matches;
+  if (!roomy) {
+    scenes.forEach((scene) =>
+      ScrollTrigger.create({
+        trigger: scene,
+        start: 'top 75%',
+        onEnter: () => scene.classList.add('is-active'),
+      }),
+    );
+    return;
+  }
+
+  section.classList.add('is-pinned');
+  const render = (progress: number) => {
+    const n = scenes.length;
+    const active = Math.min(n - 1, Math.floor(progress * n));
+    scenes.forEach((s, j) => {
+      s.classList.toggle('is-active', j === active);
+      s.setAttribute('aria-hidden', String(j !== active));
+    });
+    ticks.forEach((t, j) => {
+      t.classList.toggle('is-active', j === active);
+      t.classList.toggle('is-on', j < active);
+    });
+    if (counter) counter.textContent = `${pad(active + 1)} / ${pad(n)}`;
+  };
+  render(0);
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: () => `+=${window.innerHeight * scenes.length * 0.7}`,
     pin: true,
     scrub: true,
     onUpdate: (self) => render(self.progress),

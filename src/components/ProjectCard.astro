@@ -2,6 +2,7 @@
 import Chips from './Chips.astro';
 import ExtLink from './ExtLink.astro';
 import Todo from './Todo.astro';
+import ProjectVisual from './ProjectVisual.astro';
 import { type Lang, localizePath, useTranslations } from '../i18n/utils';
 import { type Project, slugOf } from '../lib/content';
 
@@ -9,8 +10,9 @@ interface Props {
   project: Project;
   index: number;
   lang: Lang;
+  featured?: boolean;
 }
-const { project, index, lang } = Astro.props;
+const { project, index, lang, featured = false } = Astro.props;
 const { data } = project;
 const t = useTranslations(lang).projects;
 const href = localizePath(`/projects/${slugOf(project)}/`, lang);
@@ -24,64 +26,90 @@ const external = [
 
 <article
   aria-labelledby={titleId}
-  class="reveal flex flex-col rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-ink/25 sm:p-7"
+  class:list={[
+    'reveal project-card group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-[0_18px_40px_-24px_var(--accent)]',
+    featured && 'md:col-span-2 md:flex-row',
+  ]}
 >
-  <div class="flex items-center justify-between gap-3 font-mono text-xs text-muted">
-    <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-    {data.status && (
-      <span class="rounded-full border border-line px-2.5 py-0.5">{t.status[data.status]}</span>
-    )}
-  </div>
-
-  <h3 id={titleId} class="mt-5 text-xl font-semibold tracking-tight">
-    {data.detailPage ? (
-      <a href={href} class="hover:text-accent">
-        {data.title}
-      </a>
-    ) : (
-      data.title
-    )}
-  </h3>
-  <p class="mt-2 text-pretty text-muted">{data.tagline}</p>
-  {data.problem && <p class="mt-3 text-sm leading-relaxed">{data.problem}</p>}
-
-  {data.contribution.length > 0 && (
-    <ul class="mt-5 space-y-2 text-sm leading-relaxed">
-      {data.contribution.slice(0, 3).map((c) => (
-        <li class="relative pl-4 before:absolute before:top-[0.7em] before:left-0 before:h-px before:w-2 before:bg-accent">
-          {c}
-        </li>
-      ))}
-    </ul>
-  )}
-
-  {data.todos.length > 0 && (
-    <div class="mt-4 flex flex-wrap gap-1.5">
-      {data.todos.map((note) => (
-        <Todo note={note} />
-      ))}
+  {data.visual && (
+    <div class:list={['pv-panel', featured && 'md:w-[42%] md:shrink-0 md:border-r md:border-b-0']}>
+      <div class="absolute inset-x-5 top-4 flex items-center justify-between font-mono text-xs text-muted">
+        <span aria-hidden="true" class="text-accent">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        {data.status && (
+          <span class="rounded-full border border-line bg-surface/80 px-2.5 py-0.5 backdrop-blur">
+            {t.status[data.status]}
+          </span>
+        )}
+      </div>
+      <ProjectVisual kind={data.visual} />
     </div>
   )}
 
-  <div class="mt-auto pt-6">
-    <Chips items={data.stack} label={t.stack} />
-    <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
-      {data.detailPage && (
-        <a href={href} class="link">
-          {t.caseStudy} <span aria-hidden="true">→</span>
+  <div class="flex flex-1 flex-col p-6 sm:p-7">
+    {!data.visual && (
+      <div class="flex items-center justify-between gap-3 font-mono text-xs text-muted">
+        <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+        {data.status && (
+          <span class="rounded-full border border-line px-2.5 py-0.5">{t.status[data.status]}</span>
+        )}
+      </div>
+    )}
+
+    <h3
+      id={titleId}
+      class:list={[data.visual ? 'mt-0' : 'mt-5', 'text-xl font-semibold tracking-tight']}
+    >
+      {data.detailPage ? (
+        <a href={href} class="hover:text-accent">
+          {data.title}
         </a>
+      ) : (
+        data.title
       )}
-      {external.map((l) => (
-        <ExtLink href={l.href} lang={lang} class="link">
-          {l.label}
-          <span aria-hidden="true" class="ml-1">
-            ↗
-          </span>
-        </ExtLink>
-      ))}
-      {data.linkNote && (
-        <span class="font-mono text-xs font-normal text-muted">{data.linkNote}</span>
-      )}
+    </h3>
+    <p class="mt-2 text-pretty text-muted">{data.tagline}</p>
+    {data.problem && <p class="mt-3 text-sm leading-relaxed">{data.problem}</p>}
+
+    {data.contribution.length > 0 && (
+      <ul class="mt-5 space-y-2 text-sm leading-relaxed">
+        {data.contribution.slice(0, 3).map((c) => (
+          <li class="relative pl-4 before:absolute before:top-[0.7em] before:left-0 before:h-px before:w-2 before:bg-accent">
+            {c}
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {data.todos.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {data.todos.map((note) => (
+          <Todo note={note} />
+        ))}
+      </div>
+    )}
+
+    <div class="mt-auto pt-6">
+      <Chips items={data.stack} label={t.stack} />
+      <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
+        {data.detailPage && (
+          <a href={href} class="link">
+            {t.caseStudy} <span aria-hidden="true">→</span>
+          </a>
+        )}
+        {external.map((l) => (
+          <ExtLink href={l.href} lang={lang} class="link">
+            {l.label}
+            <span aria-hidden="true" class="ml-1">
+              ↗
+            </span>
+          </ExtLink>
+        ))}
+        {data.linkNote && (
+          <span class="font-mono text-xs font-normal text-muted">{data.linkNote}</span>
+        )}
+      </div>
     </div>
   </div>
 </article>

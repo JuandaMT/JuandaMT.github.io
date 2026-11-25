@@ -237,7 +237,7 @@ const en = {
     scheduleLabel: 'Works schedule',
     phases: ['Design', 'Construction', 'Inspection', 'Permit', 'Handover'],
     workLabel: 'Selected work',
-    workHint: 'Hover a sheet: an agent traces its outline',
+    workHint: 'Scroll: each project appears with its signature drawing',
     caseStudy: 'Case study',
     materials: 'Materials',
     ref: 'Ref.',

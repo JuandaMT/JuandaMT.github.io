@@ -11,4 +11,5 @@ status: prototype
 links:
   repo: https://github.com/JuandaMT/webs-con-webgl
 order: 9
+visual: crm
 ---

@@ -237,7 +237,7 @@ const es: UI = {
     scheduleLabel: 'Programa de obra',
     phases: ['Proyecto', 'Ejecución', 'Inspección', 'Licencia', 'Entrega'],
     workLabel: 'Proyectos',
-    workHint: 'Pasa el cursor por una lámina: un agente repasa el contorno',
+    workHint: 'Haz scroll: cada proyecto aparece con su elemento característico',
     caseStudy: 'Caso de estudio',
     materials: 'Materiales',
     ref: 'Ref.',

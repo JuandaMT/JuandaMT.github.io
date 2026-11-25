@@ -24,7 +24,7 @@ const lab = all.filter((p) => p.data.tier === 'lab');
 
     <div class="grid gap-5 md:grid-cols-2">
       {main.map((project, i) => (
-        <ProjectCard project={project} index={i} lang={lang} />
+        <ProjectCard project={project} index={i} lang={lang} featured={i === 0} />
       ))}
     </div>
 
