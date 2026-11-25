@@ -28,7 +28,8 @@ for (const start of [
         internal.add(url.pathname);
       } else if (
         url.hostname === 'juandamt.github.io' &&
-        !url.pathname.startsWith('/apuntes-claude-code')
+        !url.pathname.startsWith('/apuntes-claude-code') &&
+        !url.pathname.startsWith('/webs-con-webgl')
       ) {
         // Absolute URLs to this site (OG images, canonical): check them locally.
         internal.add(url.pathname);
